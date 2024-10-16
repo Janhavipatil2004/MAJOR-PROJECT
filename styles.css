@@ -1,261 +1,258 @@
-/* General reset and base styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background: #f4f7fc;
-  color: #333;
-}
-
-/* Navbar styles */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: rgba(0, 0, 0, 0); 
-  position: absolute;
-  width: 100%;
-  top: 0;
-  z-index: 100;
-}
-
-.logo a {
-  text-decoration: none;
-  color: white;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.nav-links {
-  list-style-type: none;
-}
-
-.nav-links li {
-  display: inline;
-  margin-right: 20px;
-}
-
-.nav-links li a {
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.nav-links li a:hover {
-  color: #f9d342;
-}
-
-/* Authentication buttons */
-.auth-buttons {
-  display: flex;
-  gap: 15px;
-}
-
-.btn-signin, .btn-signup {
-  padding: 10px 20px;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.btn-signin {
-  background-color: #f9d342;
-  color: #333;
-  border: 2px solid #f9d342;
-}
-
-.btn-signup {
-  background-color: #f9d342;
-  color: #333;
-}
-
-.btn-signin:hover {
-  background-color: #fcfbf8;
-  color: #333;
-  border: 2px solid #fcfbf9;
-}
-
-.btn-signup:hover {
-  background-color: white;
-}
-
-/* Hero section with background image */
-.hero {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-image: url('https://getsmarteye.com/wp-content/uploads/2022/01/SmartEye_Facial_Recognition.png');
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
-
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
-  z-index: 1;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  color: white;
-  animation: fadeIn 2s ease-in-out;
-}
-
-.hero-title {
-  font-size: 48px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  animation: slideInLeft 1s ease-in-out;
-}
-
-.hero-text {
-  font-size: 20px;
-  margin-bottom: 30px;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-  animation: slideInLeft 1.2s ease-in-out;
-}
-
-.btn-main {
-  background-color: #f0dc08;
-  color: #333;
-  padding: 15px 30px;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-  animation: zoomIn 1.5s ease-in-out;
-}
-
-.btn-main:hover {
-  background-color: white;
-}
-
-/* Features Section with image on the right */
-.features {
-  padding: 50px;
-  background-color: #000000;
-}
-
-.features-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-direction: row-reverse;
-}
-
-.features-text {
-  width: 50%;
-  padding-left: 30px;
-}
-
-.features h2 {
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: #ffffff;
-}
-
-.features ul {
-  list-style-type: disc;
-  padding-left: 20px;
-}
-
-.features ul li {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #ffffff;
-}
-
-.features-image {
-  width: 40%;
-}
-
-.features-image img {
-  max-width: 100%;
-  border-radius: 10px;
-  flex-direction: row;
-  height: 300%;
-}
-
-/* About Section with image on the left */
-.about {
-  padding: 50px;
-  background-color: #000000;
-}
-
-/* About Section with image on the right */
-.about-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-direction: row-reverse; /* Changed this from row-reverse to row */
-}
-
-
-.about-text {
-  width: 50%;
-}
-
-.about h2 {
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: #ffffff;
-}
-
-.about p {
-  font-size: 18px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  color: #ffffff;
-  padding: 2px;
-}
-
-.about-image {
-  width: 40%;
-}
-
-.about-image img {
-  max-width: 100%;
-  border-radius: 10px;
-}
-
-/* Footer */
-footer {
-  padding: 20px;
-  text-align: center;
-  background-color: #333;
-  color: white;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@keyframes slideInLeft {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(0); }
-}
-
-@keyframes zoomIn {
-  0% { transform: scale(0); }
-  100% { transform: scale(1); }
-}
+  /* General reset and base styles */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f4f7fc;
+    color: #333;
+  }
+  
+  /* Navbar styles */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7); 
+    position: absolute;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .logo a {
+    text-decoration: none;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  
+  .nav-links {
+    list-style-type: none;
+  }
+  
+  .nav-links li {
+    display: inline;
+    margin-right: 20px;
+  }
+  
+  .nav-links li a {
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-links li a:hover {
+    color: #f9d342;
+  }
+  
+  /* Authentication buttons */
+  .auth-buttons {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .btn-signin, .btn-signup {
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .btn-signin {
+    background-color: #f9d342;
+    color: #333;
+    border: 2px solid #f9d342;
+  }
+  
+  .btn-signup {
+    background-color: #f9d342;
+    color: #333;
+  }
+  
+  .btn-signin:hover {
+    background-color: #fcfbf8;
+    color: #333;
+    border: 2px solid #fcfbf9;
+  }
+  
+  .btn-signup:hover {
+    background-color: white;
+  }
+  
+  /* Hero section with background image */
+  .hero {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('https://getsmarteye.com/wp-content/uploads/2022/01/SmartEye_Facial_Recognition.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    z-index: 1;
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    animation: fadeIn 2s ease-in-out;
+  }
+  
+  .hero-title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    animation: slideInLeft 1s ease-in-out;
+  }
+  
+  .hero-text {
+    font-size: 20px;
+    margin-bottom: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: slideInLeft 1.2s ease-in-out;
+  }
+  
+  .btn-main {
+    background-color: #f0dc08;
+    color: #333;
+    padding: 15px 30px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    animation: zoomIn 1.5s ease-in-out;
+  }
+  
+  .btn-main:hover {
+    background-color: white;
+  }
+  
+  /* Features Section with image on the right */
+  .features {
+    padding: 50px;
+    background-color: #000000;
+  }
+  
+  .features-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .features-text {
+    width: 50%;
+  }
+  
+  .features h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #ffffff;
+  }
+  
+  .features ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+  
+  .features ul li {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #ffffff;
+  }
+  
+  .features-image {
+    width: 40%;
+  }
+  
+  .features-image img {
+    max-width: 100%;
+    border-radius: 10px;
+    flex-direction: row;
+  }
+  
+  /* About Section with image on the left */
+  .about {
+    padding: 50px;
+    background-color: #000000;
+  }
+  
+  /* About Section with image on the right */
+  .about-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row-reverse; /* Changed this from row-reverse to row */
+  }
+  
+  
+  .about-text {
+    width: 50%;
+  }
+  
+  .about h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #ffffff;
+  }
+  
+  .about p {
+    font-size: 18px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #ffffff;
+    padding: 2px;
+  }
+  
+  .about-image {
+    width: 40%;
+  }
+  
+  .about-image img {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+  
+  /* Footer */
+  footer {
+    padding: 20px;
+    text-align: center;
+    background-color: #333;
+    color: white;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  
+  @keyframes slideInLeft {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(0); }
+  }
+  
+  @keyframes zoomIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }  
