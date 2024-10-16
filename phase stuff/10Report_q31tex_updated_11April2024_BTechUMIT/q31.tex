@@ -1,0 +1,94 @@
+%Latex Template (Master file): Updated  11 April 2024
+% Two side printing enabled
+% By Sanjay S. Shitole : modified on 28 feb 2011.
+% Pl. note : this template is used for practice and to show the different functions of LaTeX. Refered citations are not actuals.
+%-------------------------------------------------------------
+%--------------------------------------------------------------
+%Pl. refer the  database.bib file in the folder for references list
+% study the syntax for refernces as shown in database.bib
+
+%--------------------------------------------------------
+%--------------------------------------------------------
+% To create list of table  --
+% Run the code twice (pdflatex or latex)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%To get the references using bibtex follow following sequence.
+%pdflatex
+%bibtex
+%pdflatex
+%pdflatex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[11pt,a4paper,final,twoside]{report}
+
+\usepackage{geometry}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage[pdftex]{hyperref}
+\usepackage{epstopdf}
+\usepackage{setspace}
+\usepackage{natbib}
+
+
+\begin{document}
+
+\thispagestyle{empty}
+\input{cover.tex}
+\input{AI_Declaration.tex}
+\input{cert.tex}
+\pagenumbering{roman}
+\input{abst.tex}
+  \addcontentsline{toc}{chapter}{Abstract}
+%\clearpage
+\tableofcontents
+  
+\listoftables
+   \addcontentsline{toc}{chapter}{List of Tables}
+
+
+\listoffigures
+  \addcontentsline{toc}{chapter}{List of Figures}
+
+%\def\abstract{
+ % \chapter*{Abstract}
+  %\addcontentsline{toc}{chapter}{Abstract}
+  %\relax\markboth{ABSTRACT}{ABSTRACT}}
+%\def\endabstract{\par\newpage}
+
+\input{nomenclature.tex}
+\addcontentsline{toc}{chapter}{Nomenclature}
+
+
+\newpage
+
+\pagestyle{plain}
+\pagenumbering{arabic}
+%\singlespacing
+\onehalfspacing
+%\doublespacing
+
+\input{chap1.tex}
+\input{chap2.tex}
+\input{chap3.tex}
+\input{chap4.tex}
+\input{chap5.tex}
+\input{chap6.tex}
+
+
+\renewcommand{\bibname}{References}
+
+%\bibliographystyle{plain}
+\bibliographystyle{plainnat}
+%\bibliographystyle{agsm}
+
+\bibliography{database}
+\renewcommand{\bibliography}{\References}
+\addcontentsline{toc}{chapter}{References}
+\input{ack.tex}
+
+\end{document}
+
