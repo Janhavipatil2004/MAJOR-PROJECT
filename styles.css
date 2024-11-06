@@ -170,9 +170,14 @@ body {
   border-radius: 10px;
 }
 
-.features-text {
+.features .features-text {
   width: 50%;
   padding-left: 30px; /* Adds space between the text and image */
+  font-size: 2rem;
+  font-weight: lighter;
+  line-height: 1.8;
+  padding: 1rem 0;
+  color: #eee;
 }
 
 .features h2 {
@@ -205,8 +210,13 @@ body {
   flex-direction: row-reverse; /* Image on the right, content on the left */
 }
 
-.about-text {
-  width: 50%;
+.about .about-text {
+  /* width: 50%; */
+  font-size: 2rem;
+  font-weight: lighter;
+  line-height: 1.8;
+  padding: 1rem 0;
+  color: #eee;
 }
 
 .about h2 {
