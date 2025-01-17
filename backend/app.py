@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify , session
 import pymongo
 import bcrypt
 
@@ -19,10 +19,11 @@ def base():
     """Render the homepage."""
     return render_template('base.html')
 
-@app.route('/signin')
+@app.route('/signin', methods=['GET'])
 def signin():
     """Render the sign-in page."""
     return render_template('signin.html')
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -63,6 +64,52 @@ def register():
 
         # Return an error response
         return jsonify({"status": "error", "message": "An error occurred during registration."}), 500
+    
+@app.route('/login', methods=['POST'])
+def login():
+    """Handle user login."""
+    try:
+        # Retrieve form data
+        email = request.form['email']
+        password = request.form['password']
+
+        # Find the user in the database
+        user = collection.find_one({"email": email})
+        if user:
+            # Check the hashed password
+            if bcrypt.checkpw(password.encode('utf-8'), user['password']):
+                # Set user session
+                session['user'] = user['name']
+                flash("Login successful!", "success")
+                return redirect(url_for('dashboard'))
+            else:
+                flash("Invalid password. Please try again.", "error")
+        else:
+            flash("Email not registered. Please sign up.", "error")
+        
+        return redirect(url_for('signin'))
+
+    except Exception as e:
+        print("Error during login:", e)
+        flash("An error occurred during login. Please try again.", "error")
+        return redirect(url_for('signin'))
+
+@app.route('/dashboard')
+def dashboard():
+    """Render the dashboard page."""
+    if 'user' in session:
+        return render_template('login.html', user=session['user'])
+    else:
+        flash("Please log in to access the dashboard.", "error")
+        return redirect(url_for('signin'))
+
+@app.route('/logout')
+def logout():
+    """Handle user logout."""
+    session.pop('user', None)
+    flash("You have been logged out.", "success")
+    return redirect(url_for('signin'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
