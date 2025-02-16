@@ -1,10 +1,14 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, jsonify , session
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, session, send_from_directory
 import pymongo
 import bcrypt
+import tensorflow as tf
+import numpy as np
+import cv2
+import os
 
 # Flask app setup
-app = Flask(__name__, template_folder="../templates", static_folder="static")
-app.secret_key = "your_secret_key"  # Required for flash messages
+app = Flask(__name__, template_folder='../templates', static_folder='static')
+app.secret_key = "your_secret_key"
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB
 
 # MongoDB connection
@@ -13,90 +17,148 @@ client = pymongo.MongoClient(MONGO_URI)
 db = client["signin"]
 collection = db["signindata"]
 
-# Routes
+# Load Anti-Spoofing Model
+antispoofing_model = tf.keras.models.load_model("fine_tuned_antispoofing_model.h5")
+
+def is_real_face(image):
+    """Perform anti-spoofing detection on the given image."""
+    try:
+        resized_img = cv2.resize(image, (128, 128))
+        resized_img = resized_img.astype("float32") / 255.0
+        input_img = np.expand_dims(resized_img, axis=0)
+        prediction = antispoofing_model.predict(input_img)
+        return prediction[0][0] > 0.5
+    except Exception as e:
+        print("🔥 Error in anti-spoofing:", e)
+        return False
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    if filename.endswith('.js'):
+        return send_from_directory('static', filename, mimetype='application/javascript')
+    return send_from_directory('static', filename)
+
 @app.route('/')
 def base():
-    """Render the homepage."""
     return render_template('base.html')
 
 @app.route('/signin', methods=['GET'])
 def signin():
-    """Render the sign-in page."""
     return render_template('signin.html')
-
 
 @app.route('/register', methods=['POST'])
 def register():
-    """Handle user registration."""
+    """Handle user registration with anti-spoofing check."""
     try:
-        # Retrieve form data
-        name = request.form['name']
-        email = request.form['email']
-        phone = request.form['phone']
-        dob = request.form['dob']
-        password = request.form['password']
+        print("🚀 Received Registration Request!")
+        print("🔹 Request form data:", request.form)
+        print("🔹 Request files:", request.files)
 
-        # Hash the password
+        # Retrieve form data
+        name = request.form.get('name')
+        username = request.form.get('username')  # ✅ Added Username Field
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        dob = request.form.get('dob')
+        password = request.form.get('password')
+        image_data = request.files.get('face_image')
+
+        if not all([name, username, email, phone, dob, password, image_data]):
+            print("❌ Error: Missing required fields!")
+            return jsonify({"status": "error", "message": "Missing required fields!"}), 400
+
+        # Convert image for processing
+        nparr = np.frombuffer(image_data.read(), np.uint8)
+        face_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        if face_img is None:
+            print("❌ Error: Invalid image data!")
+            return jsonify({"status": "error", "message": "Invalid image data!"}), 400
+
+        # Perform anti-spoofing check
+        if not is_real_face(face_img):
+            return jsonify({"status": "error", "message": "Face spoofing detected!"}), 400
+
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-        # Check if the email is already registered
+        # Ensure username and email are unique
+        if collection.find_one({"username": username}):
+            return jsonify({"status": "error", "message": "Username already taken!"}), 400
         if collection.find_one({"email": email}):
             return jsonify({"status": "error", "message": "Email already registered!"}), 400
 
-        # Create user data dictionary
         user_data = {
             "name": name,
+            "username": username,  # ✅ Store Username
             "email": email,
             "phone": phone,
             "dob": dob,
             "password": hashed_password
         }
 
-        # Insert user data into the MongoDB collection
         collection.insert_one(user_data)
 
-        # Return a success response
         return jsonify({"status": "success", "message": "Registration successful!"}), 200
 
     except Exception as e:
-        # Log the exception (optional)
-        print("Error during registration:", e)
-
-        # Return an error response
+        print("🔥 Error during registration:", e)
         return jsonify({"status": "error", "message": "An error occurred during registration."}), 500
-    
+
 @app.route('/login', methods=['POST'])
 def login():
-    """Handle user login."""
+    """Handle user login with anti-spoofing check."""
     try:
-        # Retrieve form data
-        email = request.form['email']
-        password = request.form['password']
+        username = request.form.get('username')  # ✅ Changed to Username
+        password = request.form.get('password')
+        image_data = request.files.get('face_image')
 
-        # Find the user in the database
-        user = collection.find_one({"email": email})
-        if user:
-            # Check the hashed password
-            if bcrypt.checkpw(password.encode('utf-8'), user['password']):
-                # Set user session
-                session['user'] = user['name']
-                flash("Login successful!", "success")
-                return redirect(url_for('dashboard'))
-            else:
-                flash("Invalid password. Please try again.", "error")
+        if not all([username, password, image_data]):
+            print("❌ Error: Missing required fields!")
+            return jsonify({"status": "error", "message": "Missing required fields!"}), 400
+
+        nparr = np.frombuffer(image_data.read(), np.uint8)
+        face_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        if face_img is None:
+            print("❌ Error: Invalid image data!")
+            return jsonify({"status": "error", "message": "Invalid image data!"}), 400
+
+        if not is_real_face(face_img):
+            return jsonify({"status": "error", "message": "Face spoofing detected!"}), 400
+
+        # Authenticate user using username instead of email
+        user = collection.find_one({"username": username})
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+            session['temp_user'] = username
+            return jsonify({"status": "otp_required", "message": "You Will be redirected to OTP Verification", "redirect_url": url_for('otpverification')}), 200
         else:
-            flash("Email not registered. Please sign up.", "error")
-        
-        return redirect(url_for('signin'))
+            return jsonify({"status": "error", "message": "Invalid username or password!"}), 400
 
     except Exception as e:
-        print("Error during login:", e)
-        flash("An error occurred during login. Please try again.", "error")
-        return redirect(url_for('signin'))
+        print("🔥 Error during login:", e)
+        return jsonify({"status": "error", "message": "An error occurred during login."}), 500
+
+@app.route('/otpverification')
+def otpverification():
+    """Render OTP verification page with stored username."""
+    if 'temp_user' in session:
+        return render_template('indexotp.html', username=session['temp_user'])
+    return redirect(url_for('signin'))
+
+@app.route('/verify-otp', methods=['POST'])
+def verify_otp():
+    """Verify OTP and log the user in after EmailJS OTP verification."""
+    user_username = request.form.get('username')
+
+    if user_username == session.get('temp_user'):
+        session['user'] = session.pop('temp_user', None)
+        return jsonify({"status": "success", "message": "OTP verified!", "redirect_url": url_for('dashboard')}), 200
+
+    return jsonify({"status": "error", "message": "Invalid OTP verification."}), 400
 
 @app.route('/dashboard')
 def dashboard():
-    """Render the dashboard page."""
+    """Render the dashboard page after OTP verification."""
     if 'user' in session:
         return render_template('login.html', user=session['user'])
     else:
@@ -110,11 +172,6 @@ def logout():
     flash("You have been logged out.", "success")
     return redirect(url_for('signin'))
 
-
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
 

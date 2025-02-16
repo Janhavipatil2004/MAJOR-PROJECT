@@ -1,127 +1,152 @@
-// Original functionality for toggling sign-in and sign-up modes
-const sign_in_btn = document.querySelector("#sign-in-btn");
-const sign_up_btn = document.querySelector("#sign-up-btn");
-const container = document.querySelector(".container");
+document.addEventListener("DOMContentLoaded", function () {
+  // Elements for toggling between sign-in and sign-up forms
+  const sign_in_btn = document.querySelector("#sign-in-btn");
+  const sign_up_btn = document.querySelector("#sign-up-btn");
+  const container = document.querySelector(".container");
 
-sign_up_btn.addEventListener("click", () => {
-  container.classList.add("sign-up-mode");
-});
-
-sign_in_btn.addEventListener("click", () => {
-  container.classList.remove("sign-up-mode");
-});
-
-// Function to set up the camera and capture functionality
-function setupCamera(videoElement, captureButton, snapshotCanvas) {
-  // Access the user's camera
-  navigator.mediaDevices
-    .getUserMedia({ video: true })
-    .then((stream) => {
-      videoElement.srcObject = stream;
-      videoElement.play(); // Ensure video feed starts playing
-    })
-    .catch((err) => {
-      console.error("Error accessing camera: ", err);
-      alert("Unable to access the camera. Please check your permissions.");
-    });
-
-  // Freeze the video frame on canvas (optional visualization)
-  captureButton.addEventListener("click", () => {
-    const context = snapshotCanvas.getContext("2d");
-    snapshotCanvas.width = videoElement.videoWidth;
-    snapshotCanvas.height = videoElement.videoHeight;
-
-    // Draw the video feed onto the canvas
-    context.drawImage(videoElement, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
-    snapshotCanvas.classList.remove("hidden"); // Optional: Show canvas
-
-    alert("Camera frame captured (not saved).");
+  // Toggle to Sign-Up Mode
+  sign_up_btn.addEventListener("click", () => {
+    container.classList.add("sign-up-mode");
   });
-}
 
-// Set up camera for Sign-In form
-setupCamera(
-  document.getElementById("signin-camera"),
-  document.getElementById("signin-capture"),
-  document.getElementById("signin-snapshot")
-);
+  // Toggle to Sign-In Mode
+  sign_in_btn.addEventListener("click", () => {
+    container.classList.remove("sign-up-mode");
+  });
 
-// Set up camera for Sign-Up form
-setupCamera(
-  document.getElementById("signup-camera"),
-  document.getElementById("signup-capture"),
-  document.getElementById("signup-snapshot")
-);
+  // Camera setup and functionality for capturing face image
+  function setupCamera(videoElement, captureButton, snapshotCanvas, imageInputField) {
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        videoElement.srcObject = stream;
+        videoElement.play();
+      })
+      .catch((err) => {
+        console.error("Error accessing camera: ", err);
+        alert("Unable to access the camera. Please check your permissions.");
+      });
 
-// Function to handle form submission for registration
-const registerForm = document.querySelector(".sign-up-form");
-registerForm.addEventListener("submit", function (e) {
-  e.preventDefault();
+    captureButton.addEventListener("click", () => {
+      const context = snapshotCanvas.getContext("2d");
+      snapshotCanvas.width = videoElement.videoWidth;
+      snapshotCanvas.height = videoElement.videoHeight;
 
-  // Collect user input data for registration
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("signup-email").value;
-  const phone = document.getElementById("phone").value;
-  const dob = document.getElementById("dob").value;
-  const password = document.getElementById("signup-password").value;
+      // Draw the current frame from the video to the canvas
+      context.drawImage(videoElement, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+      snapshotCanvas.classList.remove("hidden");
 
-  // Create FormData to send the data
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("email", email);
-  formData.append("phone", phone);
-  formData.append("dob", dob);
-  formData.append("password", password);
-
-  // Send data to backend via fetch API
-  fetch("/register", {
-    method: "POST",
-    body: formData,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      alert(data.message);
-      if (data.status === "success") {
-        window.location.href = "/signin";
-      }
-    })
-    .catch((error) => {
-      console.error("Error during registration:", error);
-      alert("An error occurred during registration. Please try again.");
+      // Convert canvas to image and store it in the hidden input field
+      let imageData = snapshotCanvas.toDataURL("image/jpeg");
+      imageInputField.value = imageData;
     });
-});
+  }
 
-// Function to handle form submission for sign-in
-const signInForm = document.querySelector(".sign-in-form");
-signInForm.addEventListener("submit", function (e) {
-  e.preventDefault();
+  // Setup cameras for both Sign-In and Sign-Up forms
+  setupCamera(
+    document.getElementById("signin-camera"),
+    document.getElementById("signin-capture"),
+    document.getElementById("signin-snapshot"),
+    document.getElementById("signin-image")
+  );
 
-  // Collect user input data for sign-in
-  const email = document.getElementById("signin-email").value;
-  const password = document.getElementById("signin-password").value;
+  setupCamera(
+    document.getElementById("signup-camera"),
+    document.getElementById("signup-capture"),
+    document.getElementById("signup-snapshot"),
+    document.getElementById("signup-image")
+  );
 
-  // Create FormData to send the data
-  const formData = new FormData();
-  formData.append("email", email);
-  formData.append("password", password);
+  // Function to handle form submission for Sign-Up
+  const registerForm = document.querySelector(".sign-up-form");
+  registerForm.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-  // Send data to backend via fetch API
-  fetch("/signin", {
-    method: "POST",
-    body: formData,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status === "success") {
-        alert("Sign-in successful!");
-        window.location.href = "/dashboard";
-      } else {
+    const formData = new FormData();
+    formData.append("name", document.getElementById("name").value);
+    formData.append("username", document.getElementById("signup-username").value);
+    formData.append("email", document.getElementById("signup-email").value);
+    formData.append("phone", document.getElementById("phone").value);
+    formData.append("dob", document.getElementById("dob").value);
+    formData.append("password", document.getElementById("signup-password").value);
+
+    const imageBase64 = document.getElementById("signup-image").value;
+    if (!imageBase64) {
+      alert("Please capture an image before signing up.");
+      return;
+    }
+
+    // Convert Base64 to Blob
+    const blob = dataURItoBlob(imageBase64);
+    formData.append("face_image", blob, "face_image.jpg");
+
+    fetch("/register", {
+      method: "POST",
+      body: formData, // ✅ Do not set "Content-Type" manually
+    })
+      .then((response) => response.json())
+      .then((data) => {
         alert(data.message);
-      }
+        if (data.status === "success") {
+          window.location.href = "/signin";
+        }
+      })
+      .catch((error) => {
+        console.error("Error during registration:", error);
+        alert("An error occurred during registration. Please try again.");
+      });
+  });
+
+  // Function to handle form submission for Sign-In with OTP verification
+  const signInForm = document.querySelector(".sign-in-form");
+  signInForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("username", document.getElementById("signin-username").value);
+    formData.append("password", document.getElementById("signin-password").value);
+
+    const imageBase64 = document.getElementById("signin-image").value;
+    if (!imageBase64) {
+      alert("Please capture an image before signing in.");
+      return;
+    }
+
+    // Convert Base64 to Blob
+    const blob = dataURItoBlob(imageBase64);
+    formData.append("face_image", blob, "face_image.jpg");
+
+    fetch("/login", {
+      method: "POST",
+      body: formData, // ✅ Do not set "Content-Type" manually
     })
-    .catch((error) => {
-      console.error("Error during sign-in:", error);
-      alert("An error occurred during sign-in. Please try again.");
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "otp_required") {
+          alert(data.message);
+          window.location.href = data.redirect_url; // Redirect to OTP page
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error during sign-in:", error);
+        alert("An error occurred during sign-in. Please try again.");
+      });
+  });
+
+  // Function to convert Base64 to Blob
+  function dataURItoBlob(dataURI) {
+    let byteString = atob(dataURI.split(",")[1]);
+    let arrayBuffer = new ArrayBuffer(byteString.length);
+    let intArray = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < byteString.length; i++) {
+      intArray[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([intArray], { type: "image/jpeg" });
+  }
 });
+
+
+
 
