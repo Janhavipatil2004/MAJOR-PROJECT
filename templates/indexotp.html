@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP VERIFICATION</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='otpstyle.css') }}">
+    <script defer src="{{ url_for('static', filename='otpscript.js') }}"></script>
+    <script
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container step1">
+        <h2>OTP Verification</h2>
+        <br>
+        <div class="icon-container">
+            <i class="fas fa-envelope-open-text" style="font-size: 48px; color: #0d1c32; margin: 20px 0;"></i>
+        </div>
+        <h4>Enter Your Email Address</h4>
+        <br>
+        <p>You will receive an Email with OTP</p>
+
+        <div class="form-group">
+            <input type="email" id="emailAddress" placeholder="Email Address" required>
+        </div>
+        <button class="nextButton">
+            Next <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+
+    <div class="container step2">
+        <h2>OTP Verification</h2>
+        <br>
+        <div class="icon-container">
+            <i class="fas fa-key" style="font-size: 48px; color: #0d1c32; margin: 20px 0;"></i>
+        </div>
+        <h4>Enter One Time Password (OTP)</h4>
+        
+        <p>One Time Password has been sent to <span class="verifyEmail"></span></p>
+
+        <div class="otp-form">
+            <p>Enter the 4 digit code sent to your email</p>
+
+            <div class="timer-display"></div>
+
+            <div class="otp-group">
+                <input type="number" maxlength="1">
+                <input type="number" maxlength="1">
+                <input type="number" maxlength="1">
+                <input type="number" maxlength="1">
+            </div>
+            <p>
+                Not your email? / Did not receive the code?
+                <a href="javascript:void(0)" onclick="changeMyEmail()">
+                    <i class="fas fa-redo"></i> Try Again
+                </a>
+            </p>
+        </div>
+        <button class="verifyButton">
+            Verify <i class="fas fa-check"></i>
+        </button>
+    </div>
+
+    <div class="container step3">
+        <h2>Congratulations!</h2>
+        <div class="icon-container">
+            <i class="fas fa-check-circle" style="font-size: 48px; color: #28a745; margin: 20px 0;"></i>
+        </div>
+        <p>Your email has been successfully verified!</p>
+    </div>
+</body>
+</html>

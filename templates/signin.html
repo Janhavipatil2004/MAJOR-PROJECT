@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-
     <title>Sign in & Sign up Form</title>
 </head>
+
 <body>
     <div class="container">
         <div class="forms-container">
             <div class="signin-signup">
+
+                <!-- Sign-in Form -->
                 <form id="signin-form" class="sign-in-form" action="{{ url_for('login') }}" method="POST">
                     <h2 class="title">Sign in</h2>
                     <div class="input-field">
                         <i class="fas fa-user"></i>
-                         <input type="email" id="signin-email" name="email" placeholder="Email" required />
+                        <input type="text" id="signin-username" name="username" placeholder="Username" required pattern="[a-zA-Z0-9]{3,15}" title="Username should be 3-15 alphanumeric characters." />
                     </div>
                     <div class="input-field">
                         <i class="fas fa-lock"></i>
@@ -27,46 +29,52 @@
                         <video id="signin-camera" autoplay></video><br>
                         <button type="button" id="signin-capture" class="btn">Capture</button>
                         <canvas id="signin-snapshot" class="hidden"></canvas>
+                        <input type="hidden" id="signin-image" name="image">
                     </div>
-                    <input type="submit" value="Login" class="btn solid" />
+                    <input type="submit" value="Login" class="btn solid" />                    
                 </form>
 
+                <!-- Sign-up Form -->
                 <form id="signup-form" class="sign-up-form" action="{{ url_for('register') }}" method="POST">
                     <h2 class="title">Sign up</h2>
                     <div class="form-scrollable">
                         <div class="input-field">
                             <i class="fas fa-user"></i>
-                            <input type="text" id="name" name="name" placeholder="Name" required />
+                            <input type="text" id="name" name="name" placeholder="Full Name" required />
+                        </div>
+                        <div class="input-field">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="signup-username" name="username" placeholder="Username" required pattern="[a-zA-Z0-9]{3,15}" title="Username should be 3-15 alphanumeric characters." />
                         </div>
                         <div class="input-field">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="signup-email" name="email" placeholder="Email" title="Please enter a valid email address" required />
+                            <input type="email" id="signup-email" name="email" placeholder="Email" required />
                         </div>
                         <div class="input-field">
                             <i class="fas fa-phone"></i>
-                            <input type="tel" id="phone" name="phone" pattern="\d{10}" placeholder="Phone Number" maxlength="10" minlength="10" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required />
+                            <input type="tel" id="phone" name="phone" placeholder="Phone Number" required />
                         </div>
                         <div class="input-field">
                             <i class="fas fa-calendar"></i>
-                            <input placeholder="Date of Birth" class="textbox-n" type="text" onfocus="(this.type='date')"
-                            onblur="(this.type='text')" id="dob" required/>
-                            
+                            <input placeholder="Date of Birth" class="textbox-n" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="dob" required />
                         </div>
                         <div class="input-field">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="signup-password" name="password" placeholder="Password" required />
-                            
+                            <input type="password" id="signup-password" name="password" placeholder="Password" required minlength="6" />
                         </div>
                         <div class="camera-section">
                             <video id="signup-camera" autoplay></video><br>
                             <button type="button" id="signup-capture" class="btn">Capture</button>
                             <canvas id="signup-snapshot" class="hidden"></canvas>
+                            <input type="hidden" id="signup-image" name="image">
                         </div>
                     </div>
                     <input type="submit" class="btn" value="Sign up" />
                 </form>
+
             </div>
         </div>
+
         <div class="panels-container">
             <div class="panel left-panel">
                 <div class="content">
@@ -86,6 +94,11 @@
             </div>
         </div>
     </div>
+
     <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
+
 </html>
+
+
+
