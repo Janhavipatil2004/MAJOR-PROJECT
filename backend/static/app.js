@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", function () {
   // Elements for toggling between sign-in and sign-up forms
   const sign_in_btn = document.querySelector("#sign-in-btn");
