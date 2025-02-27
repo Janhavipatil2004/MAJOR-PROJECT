@@ -7,9 +7,164 @@
     <title>Face-Login System</title>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <!-- Link to CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <h2 class="logo"><a href="{{ url_for('base') }}">Face-Login</a></h2>
+             
+            <ul class="nav-links">
+                <li><a href="{{ url_for('base') }}">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="{{ url_for('signin') }}" class="btn-signin">Sign In</a>
+                <a href="{{ url_for('signin') }}" class="btn-signup">Sign Up</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Secure Access with a Glance</h1>
+            <p class="hero-text">Experience the future of authentication with our cutting-edge facial recognition system.</p>
+            <a href="{{ url_for('signin') }}" class="btn-main">Get Started</a>
+        </div>
+        <div class="hero-image">
+            <img src="https://www.sectechfield.com/img/face-scan-min.gif" alt="Face recognition illustration">
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <div class="about-container">
+            <div class="about-image">
+                <img src="https://imarticus.org/blog/wp-content/uploads/2019/06/facial.gif" alt="Why face recognition">
+            </div>
+            <div class="about-text">
+                <h2>Why Choose Face Recognition?</h2>
+                <p>Facial recognition offers a seamless blend of security and convenience. By leveraging unique biological patterns, it ensures the utmost protection of your personal information while providing a frictionless user experience.</p>
+                <ul>
+                    <li>Enhanced Security</li>
+                    <li>Convenient Access</li>
+                    <li>Reduced Identity Theft</li>
+                    <li>Quick Authentication</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <h2>Powerful Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <img src="{{ url_for('static', filename='images/real-time.svg') }}" alt="Real-time detection">
+                <h3>Real-time Detection</h3>
+                <p>Instant face detection and recognition for seamless access.</p>
+            </div>
+            <div class="feature-card">
+                <img src="{{ url_for('static', filename='images/anti-spoofing.svg') }}" alt="Anti-spoofing">
+                <h3>Anti-spoofing</h3>
+                <p>Advanced measures to prevent fraudulent access attempts.</p>
+            </div>
+            <div class="feature-card">
+                <img src="{{ url_for('static', filename='images/encryption.svg') }}" alt="Secure encryption">
+                <h3>Secure Encryption</h3>
+                <p>State-of-the-art encryption for maximum privacy protection.</p>
+            </div>
+            <div class="feature-card">
+                <img src="{{ url_for('static', filename='images/cross-platform.svg') }}" alt="Cross-platform">
+                <h3>Cross-platform</h3>
+                <p>Seamless integration across mobile and web platforms.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Sign Up</h3>
+                <p>Create your account and capture your facial data securely.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Verify</h3>
+                <p>Our system analyzes and encrypts your unique facial features.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Access</h3>
+                <p>Simply look at the camera to gain instant, secure access.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>Ready to Experience Secure and Seamless Login?</h2>
+        <p>Join thousands of users who have already embraced the future of authentication.</p>
+        <a href="{{ url_for('signin') }}" class="btn-main">Get Started Now</a>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>Face-Login</h2>
+                <p>Secure Access with a Glance</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('base') }}">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <p>Email: info@facelogin.com</p>
+                <p>Phone: +1 (123) 456-7890</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Face-Login System | All rights reserved</p>
+        </div>
+    </footer>
+
+    <!-- Smooth Scroll Script -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Face-Login System</title>
+
+   // Google Fonts
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+   // Link to CSS 
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
 
@@ -73,7 +228,7 @@
         <p>&copy; 2024 Face-Login System | All rights reserved</p>
     </footer>
 
-    <!-- Smooth Scroll Script -->
+    // Smooth Scroll Script 
     <script>
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -85,7 +240,8 @@
         });
     </script>
 </body>
-</html>
+</html> 
+-->
 
 
 <!-- background image - https://img.freepik.com/premium-photo/female-face-scanned-using-facial-recognition-technology-isolated-black-background_407474-42742.jpg -->

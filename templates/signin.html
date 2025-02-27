@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
     <title>Sign in & Sign up Form</title>
 </head>
 
@@ -16,15 +17,21 @@
 
                 <!-- Sign-in Form -->
                 <form id="signin-form" class="sign-in-form" action="{{ url_for('login') }}" method="POST">
-                    <h2 class="title">Sign in</h2>
+                    <h2 class="title">Sign In</h2>
                     <div class="input-field">
                         <i class="fas fa-user"></i>
                         <input type="text" id="signin-username" name="username" placeholder="Username" required pattern="[a-zA-Z0-9]{3,15}" title="Username should be 3-15 alphanumeric characters." />
                     </div>
+                    <!-- <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="signin-password" name="password" placeholder="Password" required />
+                    </div> -->
                     <div class="input-field">
                         <i class="fas fa-lock"></i>
                         <input type="password" id="signin-password" name="password" placeholder="Password" required />
+                        <span class="toggle-password">👁️</span>
                     </div>
+                   
                     <div class="camera-section">
                         <video id="signin-camera" autoplay></video><br>
                         <button type="button" id="signin-capture" class="btn">Capture</button>
@@ -36,7 +43,7 @@
 
                 <!-- Sign-up Form -->
                 <form id="signup-form" class="sign-up-form" action="{{ url_for('register') }}" method="POST">
-                    <h2 class="title">Sign up</h2>
+                    <h2 class="title">Sign Up</h2>
                     <div class="form-scrollable">
                         <div class="input-field">
                             <i class="fas fa-user"></i>
@@ -58,9 +65,14 @@
                             <i class="fas fa-calendar"></i>
                             <input placeholder="Date of Birth" class="textbox-n" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="dob" required />
                         </div>
+                        <!-- <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="signup-password" name="password" placeholder="Password" required minlength="6" />
+                        </div> -->
                         <div class="input-field">
                             <i class="fas fa-lock"></i>
                             <input type="password" id="signup-password" name="password" placeholder="Password" required minlength="6" />
+                            <span class="toggle-password">👁️</span>
                         </div>
                         <div class="camera-section">
                             <video id="signup-camera" autoplay></video><br>

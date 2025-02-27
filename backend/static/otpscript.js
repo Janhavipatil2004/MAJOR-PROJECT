@@ -1,3 +1,13 @@
+
+
+
+
+
+
+
+
+
+
 const step1 = document.querySelector(".step1"),
   step2 = document.querySelector(".step2"),
   step3 = document.querySelector(".step3"),
@@ -77,17 +87,32 @@ nextButton.addEventListener("click", () => {
     return;
   }
 
-  OTP = generateOTP();
   nextButton.innerHTML = "&#9889; Sending....";
 
-  const templateParams = {
-    from_name: "Face Login System",
-    OTP: OTP,
-    reply_to: emailAddress.value,
-  };
+  // ✅ Request OTP from Flask first
+  fetch("/send-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: emailAddress.value }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === "success") {
+        OTP = data.otp; // ✅ Store OTP from backend
 
-  emailjs.send(serviceID, templateID, templateParams).then(
-    (res) => {
+        // Send OTP via EmailJS
+        const templateParams = {
+          from_name: "Face Login System",
+          OTP: OTP,
+          reply_to: emailAddress.value,
+        };
+
+        return emailjs.send(serviceID, templateID, templateParams);
+      } else {
+        throw new Error(data.message);
+      }
+    })
+    .then((res) => {
       console.log("✅ Email sent successfully:", res);
       verifyEmail.textContent = emailAddress.value;
 
@@ -97,30 +122,37 @@ nextButton.addEventListener("click", () => {
       nextButton.innerHTML = "Next →";
 
       startOTPTimer();
-    },
-    (err) => {
+    })
+    .catch((err) => {
       console.error("❌ Failed to send email:", err);
       alert("Failed to send OTP. Please try again.");
       nextButton.innerHTML = "Next →";
-    }
-  );
+    });
 });
 
-// Handle OTP verification
+
 verifyButton.addEventListener("click", () => {
   let enteredOTP = "";
   inputs.forEach((input) => {
     enteredOTP += input.value;
   });
 
+  if (!enteredOTP || enteredOTP.length !== 4) { // Ensure OTP is 4 digits
+    alert("Please enter a valid 4-digit OTP.");
+    return;
+  }
+
   if (enteredOTP === OTP.toString() && timerDisplay.textContent.includes("valid")) {
     clearInterval(timer);
 
-    // ✅ Send OTP to Flask for final verification before allowing login
+    // ✅ Send OTP and email to Flask for final session handling
     fetch("/verify-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailAddress.value }),
+      body: JSON.stringify({
+        email: emailAddress.value,  // Ensure email is sent
+        otp: enteredOTP,            // Ensure OTP is sent
+      }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -147,6 +179,8 @@ verifyButton.addEventListener("click", () => {
   }
 });
 
+
+
 // Handle changing email
 function changeMyEmail() {
   step1.style.display = "block";
@@ -158,6 +192,4 @@ function changeMyEmail() {
   clearInterval(timer);
   timerDisplay.textContent = "";
 }
-
-
 

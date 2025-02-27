@@ -6,6 +6,54 @@
   box-sizing: border-box;
 }
 
+
+/* Container */
+.container {
+  position: relative;
+  width: 900px;
+  max-width: 100%;
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+}
+
+
+/* Input Fields */
+.input-field {
+  position: relative;
+  width: 100%;
+  background: #f1f1f1;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.input-field i {
+  margin-right: 10px;
+  color: #555;
+}
+
+.input-field input {
+  border: none;
+  outline: none;
+  background: none;
+  width: 100%;
+  font-size: 16px;
+  padding: 5px;
+}
+
+/* Password Toggle */
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #555;
+}
+
+
 body,
 input {
   font-family: "Poppins", sans-serif;
@@ -37,6 +85,18 @@ input {
   display: grid;
   grid-template-columns: 1fr;
   z-index: 5;
+}
+
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
 }
 
 form {

@@ -3,11 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Facial Authentication Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #898c90 0%, #fefeff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .dashboard-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+        
+        .card {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #10233a 0%, #2b304a 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            border-bottom: none;
+        }
+        
+        .user-icon {
+            font-size: 80px;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .card-body {
+            padding: 30px;
+            background-color: white;
+        }
+        
+        h2 {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .welcome-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0;
+            color: white;
+        }
+        
+        .success-message {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #ff4b2b 0%, #ff416c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 75, 43, 0.4);
+        }
+        
+        .logout-btn i {
+            margin-right: 8px;
+        }
+        
+        .success-badge {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            font-size: 0.9rem;
+            padding: 5px 15px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .success-badge i {
+            margin-right: 5px;
+        }
+        
+        .time-info {
+            font-size: 0.9rem;
+            color: #adb5bd;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome, {{ user }}!</h1>
-    <p>You have successfully logged in.</p>
-    <a href="/logout">Logout</a>
+
+    <div class="dashboard-container">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-user-circle user-icon"></i>
+                <h1 class="welcome-text">Welcome, {{ user }}!</h1>
+            </div>
+            <div class="card-body text-center">
+                <div class="success-badge">
+                    <i class="fas fa-check-circle"></i> Authentication Successful
+                </div>
+                <p class="success-message">You have successfully logged in using facial recognition technology.</p>
+                <a href="{{ url_for('logout') }}" class="btn logout-btn text-white">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+                <p class="time-info mt-4">Login time: {{ "%B %d, %Y at %H:%M" | datetimeformat }}</p>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
+

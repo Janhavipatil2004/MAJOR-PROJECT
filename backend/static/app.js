@@ -15,6 +15,23 @@ document.addEventListener("DOMContentLoaded", function () {
     container.classList.remove("sign-up-mode");
   });
 
+  document.querySelectorAll(".toggle-password").forEach((toggle) => {
+    toggle.addEventListener("click", function () {
+        let input = this.previousElementSibling;
+        if (input.type === "password") {
+            input.type = "text";
+            this.innerHTML = "🙈"; // Eye closed emoji
+        } else {
+            input.type = "password";
+            this.innerHTML = "👁️"; // Eye open emoji
+        }
+    });
+});
+
+
+
+
+
   // Camera setup and functionality for capturing face image
   function setupCamera(videoElement, captureButton, snapshotCanvas, imageInputField) {
     navigator.mediaDevices
@@ -58,6 +75,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("signup-image")
   );
 
+  //   function togglePassword() {
+  //     var passwordField = document.getElementById("password");
+  //     if (passwordField.type === "password") {
+  //         passwordField.type = "text";
+  //     } else {
+  //         passwordField.type = "password";
+  //     }
+  // }
   // Function to handle form submission for Sign-Up
   const registerForm = document.querySelector(".sign-up-form");
   registerForm.addEventListener("submit", function (e) {
