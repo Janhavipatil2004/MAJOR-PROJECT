@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 const step1 = document.querySelector(".step1"),
   step2 = document.querySelector(".step2"),
   step3 = document.querySelector(".step3"),
@@ -22,17 +12,12 @@ let OTP = "";
 let timer;
 const OTP_VALID_DURATION = 120; // OTP validity in seconds
 
-// Initialize EmailJS on page load
 window.addEventListener("load", () => {
-  emailjs.init("97QXoBVPWll2ClMVw");
   step2.style.display = "none";
   step3.style.display = "none";
 });
 
-// Generate a 4-digit OTP
-const generateOTP = () => Math.floor(1000 + Math.random() * 9000);
-
-// Start OTP countdown timer
+// Generate a 4-digit OTP (Handled by Flask)
 const startOTPTimer = () => {
   let timeLeft = OTP_VALID_DURATION;
   clearInterval(timer);
@@ -41,17 +26,6 @@ const startOTPTimer = () => {
     if (timeLeft > 0) {
       timeLeft--;
       timerDisplay.textContent = `OTP valid for: ${timeLeft}s`;
-
-      let enteredOTP = "";
-      inputs.forEach((input) => {
-        enteredOTP += input.value;
-      });
-
-      if (enteredOTP.length === 4) {
-        verifyButton.classList.remove("disable");
-      } else {
-        verifyButton.classList.add("disable");
-      }
     } else {
       clearInterval(timer);
       timerDisplay.textContent = "OTP expired. Please request a new one.";
@@ -64,21 +38,16 @@ const startOTPTimer = () => {
 inputs.forEach((input, index) => {
   input.addEventListener("input", function (e) {
     if (this.value.length > 1) this.value = this.value.slice(0, 1);
-
     if (this.value.length === 1) {
       const nextInput = inputs[index + 1];
       if (nextInput) nextInput.focus();
     }
-
     if (e.inputType === "deleteContentBackward" && this.value.length === 0) {
       const prevInput = inputs[index - 1];
       if (prevInput) prevInput.focus();
     }
   });
 });
-
-const serviceID = "service_xqg3gel";
-const templateID = "template_h0re6g7";
 
 // Handle "Next" button (Send OTP)
 nextButton.addEventListener("click", () => {
@@ -87,9 +56,9 @@ nextButton.addEventListener("click", () => {
     return;
   }
 
-  nextButton.innerHTML = "&#9889; Sending....";
+  nextButton.innerHTML = "⚡ Sending...";
 
-  // ✅ Request OTP from Flask first
+  // ✅ Request OTP from Flask
   fetch("/send-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -98,88 +67,59 @@ nextButton.addEventListener("click", () => {
     .then((response) => response.json())
     .then((data) => {
       if (data.status === "success") {
-        OTP = data.otp; // ✅ Store OTP from backend
+        verifyEmail.textContent = emailAddress.value;
+        step1.style.display = "none";
+        step2.style.display = "block";
+        step3.style.display = "none";
+        nextButton.innerHTML = "Next →";
 
-        // Send OTP via EmailJS
-        const templateParams = {
-          from_name: "Face Login System",
-          OTP: OTP,
-          reply_to: emailAddress.value,
-        };
-
-        return emailjs.send(serviceID, templateID, templateParams);
+        startOTPTimer();
       } else {
         throw new Error(data.message);
       }
     })
-    .then((res) => {
-      console.log("✅ Email sent successfully:", res);
-      verifyEmail.textContent = emailAddress.value;
-
-      step1.style.display = "none";
-      step2.style.display = "block";
-      step3.style.display = "none";
-      nextButton.innerHTML = "Next →";
-
-      startOTPTimer();
-    })
     .catch((err) => {
-      console.error("❌ Failed to send email:", err);
+      console.error("❌ Failed to send OTP:", err);
       alert("Failed to send OTP. Please try again.");
       nextButton.innerHTML = "Next →";
     });
 });
 
-
+// Handle OTP verification
 verifyButton.addEventListener("click", () => {
   let enteredOTP = "";
   inputs.forEach((input) => {
     enteredOTP += input.value;
   });
 
-  if (!enteredOTP || enteredOTP.length !== 4) { // Ensure OTP is 4 digits
+  if (!enteredOTP || enteredOTP.length !== 4) {
     alert("Please enter a valid 4-digit OTP.");
     return;
   }
 
-  if (enteredOTP === OTP.toString() && timerDisplay.textContent.includes("valid")) {
-    clearInterval(timer);
-
-    // ✅ Send OTP and email to Flask for final session handling
-    fetch("/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: emailAddress.value,  // Ensure email is sent
-        otp: enteredOTP,            // Ensure OTP is sent
-      }),
+  // ✅ Send OTP to Flask for verification
+  fetch("/verify-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: emailAddress.value,
+      otp: enteredOTP,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === "success") {
+        alert(data.message);
+        window.location.href = data.redirect_url; // ✅ Redirect to dashboard
+      } else {
+        alert(data.message);
+      }
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status === "success") {
-          alert(data.message);
-          window.location.href = data.redirect_url; // ✅ Redirect to dashboard
-        } else {
-          alert(data.message);
-        }
-      })
-      .catch((error) => {
-        console.error("❌ Error during OTP verification:", error);
-        alert("An error occurred. Please try again.");
-      });
-
-    step1.style.display = "none";
-    step2.style.display = "none";
-    step3.style.display = "block";
-  } else if (!timerDisplay.textContent.includes("valid")) {
-    alert("OTP has expired. Please request a new one.");
-  } else {
-    verifyButton.classList.add("error-shake");
-    setTimeout(() => verifyButton.classList.remove("error-shake"), 1000);
-  }
+    .catch((error) => {
+      console.error("❌ Error during OTP verification:", error);
+      alert("An error occurred. Please try again.");
+    });
 });
-
-
 
 // Handle changing email
 function changeMyEmail() {
@@ -192,4 +132,5 @@ function changeMyEmail() {
   clearInterval(timer);
   timerDisplay.textContent = "";
 }
+
 

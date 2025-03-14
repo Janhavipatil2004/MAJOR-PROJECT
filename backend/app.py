@@ -4,15 +4,15 @@ import bcrypt
 import tensorflow as tf
 import numpy as np
 import cv2
-import os
 import torch
 from facenet_pytorch import InceptionResnetV1, MTCNN
 from scipy.spatial.distance import cosine
-import base64
-import io
 from PIL import Image
 import random
 from datetime import datetime
+from flask_mail import Mail, Message 
+from werkzeug.utils import secure_filename
+
 
 # Flask app setup
 app = Flask(__name__, template_folder='../templates', static_folder='static')
@@ -25,10 +25,21 @@ client = pymongo.MongoClient(MONGO_URI)
 db = client["signin"]
 collection = db["signindata"]
 
-# Load Models
+# Flask-Mail Configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Change if using a different SMTP provider
+app.config['MAIL_PORT'] = 587  # Use 465 for SSL
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'faciallogin22@gmail.com'  # Your email
+app.config['MAIL_PASSWORD'] = 'zeym jlce uxks bqlt '  # App password if using Gmail
+app.config['MAIL_DEFAULT_SENDER'] = 'FacialLoginSystem@gmail.com'  # Sender email
+
+mail = Mail(app)
+
+ # Load Models
 antispoofing_model = tf.keras.models.load_model("fine_tuned_antispoofing_model.h5")
-mtcnn = MTCNN(image_size=160, margin=20)  # Face detection
-facenet_model = InceptionResnetV1(pretrained="vggface2").eval()  # FaceNet model
+mtcnn = MTCNN(image_size=160, margin=20, keep_all=True)  # Face detection (keep_all=True for multiple faces)
+facenet_model = InceptionResnetV1(pretrained="vggface2").eval()
 
 def is_real_face(image):
     """Perform anti-spoofing detection on the given image."""
@@ -42,15 +53,32 @@ def is_real_face(image):
         print("🔥 Error in anti-spoofing:", e)
         return False
 
-def get_embedding(image):
-    """Extract a 512D facial embedding from an image."""
+def get_embeddings(image):
+    """Extract facial embeddings for multiple faces."""
     image = Image.fromarray(image)
-    face = mtcnn(image)
-    if face is None:
-        return None
+    faces = mtcnn(image)
+    
+    if faces is None:
+        return None, "No face detected!"
+    if len(faces) > 1:
+        return None, "Multiple faces detected! Please upload an image with a single face."
+    
     with torch.no_grad():
-        embedding = facenet_model(face.unsqueeze(0))
-    return embedding.numpy().flatten()
+        embedding = facenet_model(faces[0].unsqueeze(0))
+    return embedding.numpy().flatten(), None
+
+def face_already_registered(new_embedding):
+    """Check if the face is already registered in the database."""
+    users = collection.find()
+    for user in users:
+        stored_embedding = np.array(user.get("embedding"))
+        if stored_embedding is not None:
+            similarity = 1 - cosine(new_embedding, stored_embedding)
+            if similarity > 0.7:
+                return True
+    return False
+
+
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
@@ -70,15 +98,11 @@ def base():
 def signin():
     return render_template('signin.html')
 
+
 @app.route('/register', methods=['POST'])
 def register():
     """Handle user registration with anti-spoofing and face embedding storage."""
     try:
-        print("🚀 Received Registration Request!")
-        print("🔹 Request form data:", request.form)
-        print("🔹 Request files:", request.files)
-
-        # Retrieve form data
         name = request.form.get('name')
         username = request.form.get('username')
         email = request.form.get('email')
@@ -88,19 +112,20 @@ def register():
         image_data = request.files.get('face_image')
         
         if not all([name, username, email, phone, dob, password, image_data]):
-            print("❌ Error: Missing required fields!")
             return jsonify({"status": "error", "message": "Missing required fields!"}), 400
-
-        # Convert image for processing
+        
         nparr = np.frombuffer(image_data.read(), np.uint8)
         face_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
         if face_img is None or not is_real_face(face_img):
             return jsonify({"status": "error", "message": "Invalid or spoofed face image!"}), 400
-
-        embedding = get_embedding(face_img)
-        if embedding is None:
-            return jsonify({"status": "error", "message": "No face detected!"}), 400
+        
+        embedding, error_message = get_embeddings(face_img)
+        if error_message:
+            return jsonify({"status": "error", "message": error_message}), 400
+        
+        if face_already_registered(embedding):
+            return jsonify({"status": "error", "message": "Face already registered!"}), 400
         
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         
@@ -124,6 +149,7 @@ def register():
         print("🔥 Error during registration:", e)
         return jsonify({"status": "error", "message": "An error occurred during registration."}), 500
 
+
 @app.route('/login', methods=['POST'])
 def login():
     """Authenticate user using username, password, and face embedding."""
@@ -131,59 +157,116 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         image_data = request.files.get('face_image')
-        
+
+        # Debugging logs
+        print("Received Username:", username)
+        print("Received Password:", bool(password))  
+        print("Received Image Data:", image_data is not None)
+
+        # Check for missing fields
         if not all([username, password, image_data]):
             print("❌ Error: Missing required fields!")
             return jsonify({"status": "error", "message": "Missing required fields!"}), 400
-        
+
+        # Read image and decode
         nparr = np.frombuffer(image_data.read(), np.uint8)
         face_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
+
+        # Ensure valid image and anti-spoofing check
         if face_img is None or not is_real_face(face_img):
             return jsonify({"status": "error", "message": "Invalid or spoofed face image!"}), 400
-        
-        embedding = get_embedding(face_img)
+
+        # Extract face embedding
+        embedding_result = get_embeddings(face_img)
+
+        # Ensure it is a NumPy array
+        if isinstance(embedding_result, tuple):
+            embedding = embedding_result[0]  # Extract only the embedding
+        else:
+            embedding = embedding_result
+
         if embedding is None:
             return jsonify({"status": "error", "message": "No face detected!"}), 400
-        
+
+        # Find user in MongoDB
         user = collection.find_one({"username": username})
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
-            stored_embedding = np.array(user["embedding"])
-            similarity = 1 - cosine(embedding, stored_embedding)
-            
-            if similarity > 0.7:
-                session['temp_user'] = username
-                return jsonify({"status": "otp_required", "message": "OTP Verification required", "redirect_url": url_for('otpverification')}), 200
-            else:
-                return jsonify({"status": "error", "message": "Face authentication failed!"}), 401
-        else:
+        if not user:
             return jsonify({"status": "error", "message": "Invalid username or password!"}), 400
-    
+
+        # Verify password
+        if not bcrypt.checkpw(password.encode('utf-8'), user['password']):
+            return jsonify({"status": "error", "message": "Invalid username or password!"}), 400
+
+        # Ensure stored embedding exists
+        stored_embedding = user.get("embedding")
+        if stored_embedding is None:
+            return jsonify({"status": "error", "message": "No facial data found for user!"}), 400
+
+        # Convert stored embedding to NumPy array
+        stored_embedding = np.array(stored_embedding, dtype=np.float32)
+
+        # Ensure embedding dimensions match
+        if stored_embedding.shape != embedding.shape:
+            return jsonify({"status": "error", "message": "Embedding dimension mismatch!"}), 400
+
+        # Compute similarity
+        similarity = 1 - cosine(embedding, stored_embedding)
+        print(f"🔹 Similarity Score: {similarity}")
+
+        # Authentication success check
+        if similarity > 0.7:
+            session['temp_user'] = username
+            return jsonify({
+                "status": "otp_required",
+                "message": "OTP Verification required",
+                "redirect_url": url_for('otpverification')
+            }), 200
+        else:
+            return jsonify({"status": "error", "message": "Face authentication failed!"}), 401
+
     except Exception as e:
         print("🔥 Error during login:", e)
         return jsonify({"status": "error", "message": "An error occurred during login."}), 500
-    
 
 
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
-    """Generate OTP and store it in session for verification"""
+    """Generate OTP and send via email using Flask-Mail."""
     try:
-        email = request.json.get('email')
+        data = request.json
+        email = data.get('email')
+
         if not email:
             return jsonify({"status": "error", "message": "Email is required!"}), 400
         
-        # Generate a 4-digit OTP
+        # Generate a 6-digit OTP for better security
         otp = str(random.randint(1000, 9999))
-        session['otp'] = otp  # ✅ Store OTP in session
-        session['otp_email'] = email  # ✅ Store email for verification
-        
-        return jsonify({"status": "success", "otp": otp})  # ✅ Send OTP back to frontend for EmailJS
-        
+        session['otp'] = otp  # Store OTP in session
+        session['otp_email'] = email  # Store email for verification
+      
+
+        # Construct and send the email
+        msg = Message(
+            "Your One-Time Password (OTP) for Secure Verification",
+            recipients=[email]
+        )
+        msg.body = (
+    "Dear User,\n\n"
+    "Your one-time password (OTP) for verification is:\n\n"
+    f"   {otp}   \n\n"
+    "This OTP is valid for 2 minutes. Please do not share it with anyone for security reasons.\n\n"
+    "If you did not request this OTP, please ignore this message.\n\n"
+    "Best regards,\n"
+    "Facial Login System"
+)
+        mail.send(msg)
+
+
+        return jsonify({"status": "success", "message": "OTP sent successfully!"})
+    
     except Exception as e:
         print("🔥 Error sending OTP:", e)
-        return jsonify({"status": "error", "message": "An error occurred while generating OTP."}), 500
-
+        return jsonify({"status": "error", "message": "Failed to send OTP. Please try again."}), 500
 
 @app.route('/otpverification')
 def otpverification():
@@ -205,6 +288,7 @@ def verify_otp():
                 session.pop('otp', None)  # ✅ Clear OTP after successful verification
                 session.pop('otp_email', None)
                 session['user'] = email  # ✅ Store user session
+               
 
                 return jsonify({"status": "success", "message": "OTP verified!", "redirect_url": url_for('dashboard')}), 200
 
