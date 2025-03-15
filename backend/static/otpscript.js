@@ -134,3 +134,12 @@ function changeMyEmail() {
 }
 
 
+// Detect back button press and log out the user
+window.addEventListener("pageshow", function (event) {
+  if (event.persisted || window.performance && window.performance.navigation.type === 2) {
+    fetch("/force-logout", { method: "POST" })  // ✅ Force session clear
+      .then(() => {
+        window.location.href = "/signin";  // ✅ Redirect to sign-in page
+      });
+  }
+});

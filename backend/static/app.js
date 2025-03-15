@@ -158,6 +158,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     return new Blob([intArray], { type: "image/jpeg" });
   }
+
+  
+// Detect back button press and log out
+window.addEventListener("pageshow", function (event) {
+  if (event.persisted) {
+      fetch("/logout", { method: "GET" }).then(() => {
+          window.location.href = "/signin";  // Redirect to sign-in page
+      });
+  }
+});
+
+
+
+
 });
 
 

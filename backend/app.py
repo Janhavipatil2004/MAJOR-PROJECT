@@ -41,6 +41,8 @@ antispoofing_model = tf.keras.models.load_model("fine_tuned_antispoofing_model.h
 mtcnn = MTCNN(image_size=160, margin=20, keep_all=True)  # Face detection (keep_all=True for multiple faces)
 facenet_model = InceptionResnetV1(pretrained="vggface2").eval()
 
+
+
 def is_real_face(image):
     """Perform anti-spoofing detection on the given image."""
     try:
@@ -78,6 +80,13 @@ def face_already_registered(new_embedding):
                 return True
     return False
 
+@app.after_request
+def add_no_cache_headers(response):
+    """Prevent caching to ensure session logout on back navigation."""
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 
 @app.route('/static/<path:filename>')
@@ -314,6 +323,12 @@ def logout():
     session.pop('user', None)
     flash("You have been logged out.", "success")
     return redirect(url_for('signin'))
+
+@app.route('/force-logout', methods=['POST'])
+def force_logout():
+    """Forcefully log out the user when they click the back button."""
+    session.clear()  # ✅ Completely remove session data
+    return jsonify({"status": "success", "message": "Session cleared"}), 200
 
 
 if __name__ == '__main__':

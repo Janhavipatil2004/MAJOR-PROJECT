@@ -326,5 +326,15 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        window.onload = function () {
+            if (performance.navigation.type === 2) {  // Detect back button
+                fetch('/force-logout', { method: 'POST' })  // Clear session
+                    .then(response => window.location.href = "/signin"); // Redirect to sign-in
+            }
+        };
+    </script>
+    
 </body>
 </html>
