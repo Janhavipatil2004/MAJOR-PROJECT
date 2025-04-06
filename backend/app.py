@@ -1,3 +1,4 @@
+from collections.abc import Collection
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, session, send_from_directory
 import pymongo
 import bcrypt
@@ -12,6 +13,7 @@ import random
 from datetime import datetime
 from flask_mail import Mail, Message 
 from werkzeug.utils import secure_filename
+from pymongo import MongoClient
 
 
 # Flask app setup
@@ -20,10 +22,15 @@ app.secret_key = "your_secret_key"
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB
 
 # MongoDB connection
-MONGO_URI = "mongodb://localhost:27017"
-client = pymongo.MongoClient(MONGO_URI)
-db = client["signin"]
-collection = db["signindata"]
+# MONGO_URI = "mongodb://localhost:27017"
+# client = pymongo.MongoClient(MONGO_URI)
+# db = client["signin"]
+# collection = db["signindata"]
+
+MONGO_URI = "mongodb+srv://faciallogin22:VRkfgqnMg2cKicsv@facelogin.tnlk2if.mongodb.net/?retryWrites=true&w=majority&appName=facelogin"
+client = MongoClient(MONGO_URI)
+db = client["facelogin_db"] 
+users_collection = db["users"]   
 
 # Flask-Mail Configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Change if using a different SMTP provider
@@ -71,7 +78,7 @@ def get_embeddings(image):
 
 def face_already_registered(new_embedding):
     """Check if the face is already registered in the database."""
-    users = collection.find()
+    users = users_collection.find()
     for user in users:
         stored_embedding = np.array(user.get("embedding"))
         if stored_embedding is not None:
@@ -138,7 +145,7 @@ def register():
         
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         
-        if collection.find_one({"username": username}) or collection.find_one({"email": email}):
+        if users_collection.find_one({"username": username}) or users_collection.find_one({"email": email}):
             return jsonify({"status": "error", "message": "Username or email already exists!"}), 400
         
         user_data = {
@@ -151,7 +158,7 @@ def register():
             "embedding": embedding.tolist()
         }
         
-        collection.insert_one(user_data)
+        users_collection.insert_one(user_data)
         return jsonify({"status": "success", "message": "Registration successful!"}), 200
     
     except Exception as e:
@@ -198,7 +205,7 @@ def login():
             return jsonify({"status": "error", "message": "No face detected!"}), 400
 
         # Find user in MongoDB
-        user = collection.find_one({"username": username})
+        user = users_collection.find_one({"username": username})
         if not user:
             return jsonify({"status": "error", "message": "Invalid username or password!"}), 400
 
