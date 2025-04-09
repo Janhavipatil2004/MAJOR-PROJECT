@@ -14,6 +14,8 @@ from datetime import datetime
 from flask_mail import Mail, Message 
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
+from encryption_utils import encrypt_embedding, decrypt_embedding
+
 
 
 # Flask app setup
@@ -80,7 +82,10 @@ def face_already_registered(new_embedding):
     """Check if the face is already registered in the database."""
     users = users_collection.find()
     for user in users:
-        stored_embedding = np.array(user.get("embedding"))
+        # Decrypt the stored embedding
+        stored_embedding_b64 = user.get("embedding")
+        stored_embedding = decrypt_embedding(stored_embedding_b64)
+
         if stored_embedding is not None:
             similarity = 1 - cosine(new_embedding, stored_embedding)
             if similarity > 0.7:
@@ -148,15 +153,18 @@ def register():
         if users_collection.find_one({"username": username}) or users_collection.find_one({"email": email}):
             return jsonify({"status": "error", "message": "Username or email already exists!"}), 400
         
+# Encrypt the embedding before storing
+        encrypted_embedding = encrypt_embedding(embedding)
         user_data = {
-            "name": name,
-            "username": username,
-            "email": email,
-            "phone": phone,
-            "dob": dob,
-            "password": hashed_password,
-            "embedding": embedding.tolist()
-        }
+    "name": name,
+    "username": username,
+    "email": email,
+    "phone": phone,
+    "dob": dob,
+    "password": hashed_password,
+    "embedding": encrypted_embedding
+}
+
         
         users_collection.insert_one(user_data)
         return jsonify({"status": "success", "message": "Registration successful!"}), 200
@@ -219,7 +227,11 @@ def login():
             return jsonify({"status": "error", "message": "No facial data found for user!"}), 400
 
         # Convert stored embedding to NumPy array
-        stored_embedding = np.array(stored_embedding, dtype=np.float32)
+        # Decrypt the stored encrypted embedding
+        stored_embedding = decrypt_embedding(stored_embedding)
+        if stored_embedding is None:
+            return jsonify({"status": "error", "message": "Failed to decrypt facial data!"}), 500
+
 
         # Ensure embedding dimensions match
         if stored_embedding.shape != embedding.shape:
@@ -232,6 +244,7 @@ def login():
         # Authentication success check
         if similarity > 0.7:
             session['temp_user'] = username
+            session['temp_name'] = user['name']
             return jsonify({
                 "status": "otp_required",
                 "message": "OTP Verification required",
@@ -304,6 +317,7 @@ def verify_otp():
                 session.pop('otp', None)  # ✅ Clear OTP after successful verification
                 session.pop('otp_email', None)
                 session['user'] = email  # ✅ Store user session
+                session['name'] = session.get('temp_name') 
                
 
                 return jsonify({"status": "success", "message": "OTP verified!", "redirect_url": url_for('dashboard')}), 200
@@ -319,10 +333,18 @@ def verify_otp():
 def dashboard():
     """Render the dashboard page after OTP verification."""
     if 'user' in session:
-        return render_template('login.html', user=session['user'], now=datetime.now())  # ✅ Pass `now`
+        name = session.get('temp_name') or session.get('name') or 'User'
+        return render_template('login.html', user=name, now=datetime.now())
     
     flash("Please log in to access the dashboard.", "error")
     return redirect(url_for('signin'))
+
+@app.route('/editprofile')
+def edit_profile():
+    if 'user' not in session:
+        return redirect(url_for('signin'))
+    return render_template('editprofile.html')
+
 
 @app.route('/logout')
 def logout():

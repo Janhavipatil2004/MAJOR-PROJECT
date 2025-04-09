@@ -3,9 +3,35 @@
 
 /* Root Variables */
 :root {
+  /* Light Theme Colors */
   --primary: #6366f1;
   --primary-dark: #4f46e5;
   --primary-light: #818cf8;
+  --secondary: #10b981;
+  --dark: #f8fafc;
+  --darker: #ffffff;
+  --light: #0f172a;
+  --gray: #64748b;
+  --gray-light: #94a3b8;
+  --gray-dark: #334155;
+  --surface: #ffffff;
+  --surface-light: #f1f5f9;
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --sidebar-width: 260px;
+  --header-height: 70px;
+  --border-radius: 10px;
+  --card-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  --transition: all 0.3s ease;
+}
+
+/* Dark Theme Colors */
+.dark-theme {
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
   --secondary: #10b981;
   --dark: #0f172a;
   --darker: #0a0f1c;
@@ -15,15 +41,11 @@
   --gray-dark: #334155;
   --surface: #1e293b;
   --surface-light: #334155;
-  --danger: #ef4444;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --info: #3b82f6;
-  --sidebar-width: 260px;
-  --header-height: 70px;
-  --border-radius: 10px;
-  --card-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  --transition: all 0.3s ease;
+  --card-bg: var(--surface);
+  --card-border: var(--surface-light);
+  --text-primary: var(--light);
+  --text-secondary: var(--gray-light);
+  --input-bg: var(--surface-light);
 }
 
 /* Base Styles */
@@ -39,14 +61,7 @@ body {
   color: var(--light);
   line-height: 1.6;
   overflow-x: hidden;
-}
-
-.dark-theme {
-  --card-bg: var(--surface);
-  --card-border: var(--surface-light);
-  --text-primary: var(--light);
-  --text-secondary: var(--gray-light);
-  --input-bg: var(--surface-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -56,6 +71,28 @@ a {
 
 ul {
   list-style: none;
+}
+
+
+
+/* Theme Toggle */
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--light);
+  font-size: 1.2rem;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.theme-toggle:hover {
+  background-color: var(--surface-light);
 }
 
 /* Dashboard Container */
@@ -73,7 +110,7 @@ ul {
   left: 0;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   transition: var(--transition);
@@ -84,7 +121,7 @@ ul {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--surface);
+  border-bottom: 1px solid var(--surface-light);
 }
 
 .brand {
@@ -108,23 +145,28 @@ ul {
   cursor: pointer;
 }
 
+/* Example sidebar collapse behavior (edit as needed) */
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
 .user-profile {
   padding: 20px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--surface);
+  border-bottom: 1px solid var(--surface-light);
 }
 
 .avatar {
   width: 45px;
   height: 45px;
-  background-color: var(--surface-light);
+  background-color: var(--primary-light);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 15px;
-  color: var(--primary-light);
+  color: var(--darker);
   font-size: 1.2rem;
 }
 
@@ -167,13 +209,13 @@ ul {
 }
 
 .sidebar-menu ul li a:hover {
-  background-color: var(--surface);
-  color: var(--primary-light);
+  background-color: var(--surface-light);
+  color: var(--primary);
 }
 
 .sidebar-menu ul li.active a {
-  background-color: var(--primary-dark);
-  color: var(--light);
+  background-color: var(--primary);
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -196,7 +238,7 @@ ul {
 
 .sidebar-footer {
   padding: 15px 20px;
-  border-top: 1px solid var(--surface);
+  border-top: 1px solid var(--surface-light);
 }
 
 .system-status {
@@ -284,6 +326,7 @@ ul {
   display: flex;
   align-items: center;
   margin-left: auto;
+  gap: 15px;
 }
 
 .btn-user {
@@ -292,19 +335,18 @@ ul {
   font-size: 1.1rem;
   color: var(--light);
   position: relative;
-  margin-left: 15px;
   cursor: pointer;
 }
 
 .user-avatar {
   width: 35px;
   height: 35px;
-  background-color: var(--surface-light);
+  background-color: var(--primary-light);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary-light);
+  color: var(--darker);
   font-size: 1rem;
 }
 
@@ -322,7 +364,7 @@ ul {
 .dropdown-item:hover,
 .dropdown-item:focus {
   background-color: var(--surface-light);
-  color: var(--primary-light);
+  color: var(--primary);
 }
 
 .dropdown-divider {
@@ -338,13 +380,13 @@ ul {
 .dropdown-user-avatar {
   width: 40px;
   height: 40px;
-  background-color: var(--surface-light);
+  background-color: var(--primary-light);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 15px;
-  color: var(--primary-light);
+  color: var(--darker);
   font-size: 1.1rem;
 }
 
@@ -428,8 +470,8 @@ ul {
   justify-content: center;
   margin-right: 15px;
   font-size: 1.5rem;
-  background-color: var(--primary-dark);
-  color: var(--light);
+  background-color: var(--primary);
+  color: #ffffff;
 }
 
 .stat-card-info h5 {
@@ -515,8 +557,8 @@ ul {
   justify-content: center;
   margin-right: 15px;
   font-size: 1.2rem;
-  background-color: var(--primary-dark);
-  color: var(--light);
+  background-color: var(--primary);
+  color: #ffffff;
 }
 
 .action-icon.logout-icon {
@@ -560,7 +602,7 @@ ul {
 }
 
 .footer a {
-  color: var(--primary-light);
+  color: var(--primary);
 }
 
 /* Responsive Styles */
@@ -593,3 +635,157 @@ ul {
   color: var(--danger) !important;
 }
 
+/* Profile Edit Page Styles */
+.profile-header {
+  background-color: var(--surface);
+  border-radius: var(--border-radius);
+  padding: 30px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid var(--surface-light);
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--darker);
+  position: relative;
+}
+
+.profile-avatar-upload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  border: 2px solid var(--surface);
+}
+
+.profile-info h2 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--light);
+}
+
+.profile-info p {
+  margin: 5px 0 0;
+  color: var(--gray-light);
+}
+
+.form-label {
+  color: var(--light);
+  font-weight: 500;
+}
+
+.form-control {
+  background-color: var(--surface-light);
+  border-color: var(--surface-light);
+  color: var(--light);
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+  background-color: var(--surface-light);
+  border-color: var(--primary);
+  color: var(--light);
+  box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
+}
+
+.form-control::placeholder {
+  color: var(--gray-light);
+}
+
+.form-section {
+  margin-bottom: 30px;
+}
+
+.form-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--light);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-section-title i {
+  color: var(--primary);
+}
+
+.facial-recognition-box {
+  background-color: var(--surface-light);
+  border: 2px dashed var(--gray-light);
+  border-radius: var(--border-radius);
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.facial-recognition-box i {
+  font-size: 3rem;
+  color: var(--gray-light);
+  margin-bottom: 15px;
+}
+
+.facial-recognition-box h5 {
+  margin-bottom: 15px;
+  color: var(--light);
+}
+
+.facial-recognition-box p {
+  color: var(--gray-light);
+  margin-bottom: 20px;
+}
+
+.webcam-container {
+  display: none;
+  margin-top: 20px;
+}
+
+#webcam {
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--border-radius);
+  margin-bottom: 15px;
+}
+
+.webcam-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+#capturedImage {
+  display: none;
+  max-width: 400px;
+  border-radius: var(--border-radius);
+  margin: 15px auto;
+}
+
+.btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
