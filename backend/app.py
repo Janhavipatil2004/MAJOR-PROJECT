@@ -245,6 +245,7 @@ def login():
         if similarity > 0.7:
             session['temp_user'] = username
             session['temp_name'] = user['name']
+            session['temp_email'] = user['email'] 
             return jsonify({
                 "status": "otp_required",
                 "message": "OTP Verification required",
@@ -257,39 +258,32 @@ def login():
         print("🔥 Error during login:", e)
         return jsonify({"status": "error", "message": "An error occurred during login."}), 500
 
-
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
     """Generate OTP and send via email using Flask-Mail."""
     try:
-        data = request.json
-        email = data.get('email')
+        email = session.get('temp_email')  # ✅ Get email from session
 
         if not email:
-            return jsonify({"status": "error", "message": "Email is required!"}), 400
+            return jsonify({"status": "error", "message": "Email not found in session!"}), 400
         
-        # Generate a 6-digit OTP for better security
         otp = str(random.randint(1000, 9999))
-        session['otp'] = otp  # Store OTP in session
-        session['otp_email'] = email  # Store email for verification
-      
+        session['otp'] = otp
+        session['otp_email'] = email
 
-        # Construct and send the email
         msg = Message(
             "Your One-Time Password (OTP) for Secure Verification",
             recipients=[email]
         )
         msg.body = (
-    "Dear User,\n\n"
-    "Your one-time password (OTP) for verification is:\n\n"
-    f"   {otp}   \n\n"
-    "This OTP is valid for 2 minutes. Please do not share it with anyone for security reasons.\n\n"
-    "If you did not request this OTP, please ignore this message.\n\n"
-    "Best regards,\n"
-    "Facial Login System"
-)
+            "Dear User,\n\n"
+            f"Your one-time password (OTP) for verification is:\n\n   {otp}   \n\n"
+            "This OTP is valid for 2 minutes. Please do not share it with anyone for security reasons.\n\n"
+            "If you did not request this OTP, please ignore this message.\n\n"
+            "Best regards,\n"
+            "Facial Login System"
+        )
         mail.send(msg)
-
 
         return jsonify({"status": "success", "message": "OTP sent successfully!"})
     
@@ -301,8 +295,12 @@ def send_otp():
 def otpverification():
     """Render OTP verification page with stored username."""
     if 'temp_user' in session:
-        return render_template('indexotp.html', username=session['temp_user'])
+        user = users_collection.find_one({"username": session['temp_user']})
+        if user and 'email' in user:
+            session['otp_email'] = user['email']  # 👈 ADD THIS
+            return render_template('indexotp.html', username=user['username'])
     return redirect(url_for('signin'))
+
 
 @app.route('/verify-otp', methods=['POST'])
 def verify_otp():
@@ -311,23 +309,30 @@ def verify_otp():
         user_otp = request.json.get('otp')
         email = request.json.get('email')
 
+        print("✅ Received Email:", email)
+        print("🧠 Session Email:", session.get('otp_email'))
+        print("🔑 Received OTP:", user_otp)
+        print("🔐 Session OTP:", session.get('otp'))
+
         # ✅ Check stored OTP and email in session
         if 'otp' in session and 'otp_email' in session:
             if user_otp == session['otp'] and email == session['otp_email']:
-                session.pop('otp', None)  # ✅ Clear OTP after successful verification
+                session.pop('otp', None)
                 session.pop('otp_email', None)
-                session['user'] = email  # ✅ Store user session
+                session['user'] = email
                 session['name'] = session.get('temp_name') 
-               
 
-                return jsonify({"status": "success", "message": "OTP verified!", "redirect_url": url_for('dashboard')}), 200
+                return jsonify({
+                    "status": "success", 
+                    "message": "OTP verified!", 
+                    "redirect_url": url_for('dashboard')
+                }), 200
 
         return jsonify({"status": "error", "message": "Invalid OTP!"}), 400
 
     except Exception as e:
         print("🔥 Error verifying OTP:", e)
         return jsonify({"status": "error", "message": "An error occurred during OTP verification."}), 500
-
 
 @app.route('/dashboard')
 def dashboard():
