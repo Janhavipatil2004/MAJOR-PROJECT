@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesdashboard.css') }}">
 </head>
+
 <body class="dark-theme">
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -24,36 +26,31 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <div class="user-profile">
                 <div class="avatar">
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-info">
-                    <h6>{{ user }}</h6>
+                    <h6>{{ user.name }}</h6>
                     <span class="badge bg-secondary">Verified</span>
                 </div>
             </div>
-            
+
             <div class="sidebar-menu">
                 <ul>
-                    <li>
-                        <a href="index.html">
+                    <li class="active">
+                        <a href="{{ url_for('dashboard') }}">
                             <i class="fas fa-home"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
+
                     <li class="sidebar-divider">
                         <span>Account</span>
                     </li>
                     <li class="active">
-                        <a href="edit-profile.html">
+                        <a href="{{ url_for('edit_profile') }}">
                             <i class="fas fa-user-edit"></i>
                             <span>Edit Profile</span>
                         </a>
@@ -66,7 +63,7 @@
                     </li>
                 </ul>
             </div>
-            
+
             <div class="sidebar-footer">
                 <div class="system-status">
                     <div class="status-indicator online"></div>
@@ -74,7 +71,7 @@
                 </div>
             </div>
         </aside>
-        
+
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-header">
@@ -83,21 +80,22 @@
                         <i class="fas fa-bars"></i>
                     </button>
                 </div>
-                
+
                 <div class="search-container d-none d-md-flex">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
                         <input type="text" placeholder="Search...">
                     </div>
                 </div>
-                
+
                 <div class="header-actions">
                     <button class="theme-toggle" id="themeToggle">
                         <i class="fas fa-moon"></i>
                     </button>
-                    
+
                     <div class="dropdown user-dropdown">
-                        <button class="btn-user" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn-user" type="button" id="userDropdown" data-bs-toggle="dropdown"
+                            aria-expanded="false">
                             <div class="user-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
@@ -108,20 +106,26 @@
                                     <i class="fas fa-user"></i>
                                 </div>
                                 <div>
-                                    <h6>{{ user }}</h6>
+                                    <h6>{{ user.name }}</h6>
                                     <p>Authenticated User</p>
                                 </div>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="edit-profile.html"><i class="fas fa-user-edit me-2"></i> Edit Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="edit-profile.html"><i class="fas fa-user-edit me-2"></i>
+                                    Edit Profile</a></li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i
+                                        class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                         </ul>
                     </div>
                 </div>
             </header>
-            
+
             <div class="content-wrapper">
                 <div class="page-header">
                     <div>
@@ -134,7 +138,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <!-- Profile Header -->
                 <div class="profile-header">
                     <div class="profile-avatar">
@@ -145,11 +149,11 @@
                         </div>
                     </div>
                     <div class="profile-info">
-                        <h2>{{ user }}</h2>
+                        <h2>{{ user.name }}</h2>
                         <p>Update your photo and personal details</p>
                     </div>
                 </div>
-                
+
                 <!-- Profile Form -->
                 <div class="card main-card">
                     <div class="card-body">
@@ -162,29 +166,36 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="username" class="form-label">Username</label>
-                                        <input type="text" class="form-control" id="username" value="{{ user }}">
+                                        <input type="text" class="form-control" id="username"
+                                            value="{{ user.username }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="fullName" class="form-label">Full Name</label>
-                                        <input type="text" class="form-control" id="fullName" placeholder="Enter your full name">
+                                        <input type="text" class="form-control" id="fullName" name="full_name"
+                                            value="{{ user.name }}">
+
                                     </div>
                                     <div class="col-md-6">
                                         <label for="email" class="form-label">Email Address</label>
-                                        <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                                        <input type="email" class="form-control" id="email" name="email"
+                                            value="{{ user.email }}">
+
                                     </div>
                                     <div class="col-md-6">
                                         <label for="phone" class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number">
+                                        <input type="tel" class="form-control" id="phone" name="phone"
+                                            value="{{ user.phone }}">
+
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Facial Recognition -->
                             <div class="form-section">
                                 <h5 class="form-section-title">
                                     <i class="fas fa-camera"></i> Facial Recognition
                                 </h5>
-                                
+
                                 <div class="facial-recognition-box">
                                     <i class="fas fa-camera"></i>
                                     <h5>Update Your Facial Recognition Data</h5>
@@ -192,7 +203,7 @@
                                     <button type="button" class="btn btn-primary" id="startCamera">
                                         <i class="fas fa-camera me-2"></i> Start Camera
                                     </button>
-                                    
+
                                     <div class="webcam-container" id="webcamContainer">
                                         <video id="webcam" autoplay playsinline></video>
                                         <img id="capturedImage" src="/placeholder.svg" alt="Captured image">
@@ -207,7 +218,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="d-flex justify-content-end mt-4">
                                 <button type="button" class="btn btn-outline-primary me-2">Cancel</button>
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -216,10 +227,10 @@
                     </div>
                 </div>
             </div>
-            
+
             <footer class="footer">
                 <div>
-                    <p>&copy; 2023 SecureFace Authentication. All rights reserved.</p>
+                    <p>&copy; 2025 SecureFace Authentication. All rights reserved.</p>
                 </div>
                 <div>
                     <a href="#">Privacy Policy</a>
@@ -236,4 +247,5 @@
     <script src="scriptdashboard.js"></script>
     <script src="{{ url_for('static', filename='profile.js') }}"></script>
 </body>
+
 </html>

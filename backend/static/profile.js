@@ -120,22 +120,50 @@ document.addEventListener("DOMContentLoaded", () => {
     // Form submission
     const profileForm = document.getElementById("profileForm")
   
-    if (profileForm) {
-      profileForm.addEventListener("submit", (e) => {
-        e.preventDefault()
-  
-        // Get form values
-        const username = document.getElementById("username").value
-        const fullName = document.getElementById("fullName").value
-        const email = document.getElementById("email").value
-        const phone = document.getElementById("phone").value
-  
-        // Here you would normally send this data to your server
-        console.log("Profile data:", { username, fullName, email, phone })
-  
-        // Show success message
-        alert("Profile updated successfully!")
-      })
+if (profileForm) {
+  profileForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Get form values
+    const username = document.getElementById("username").value;
+    const fullName = document.getElementById("fullName").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("phone").value;
+
+    // Get captured image if available
+    const capturedImg = document.getElementById("capturedImage");
+    const faceDataUrl = (capturedImg && capturedImg.src && !capturedImg.src.includes("placeholder"))
+      ? capturedImg.src
+      : null;
+
+    try {
+      const response = await fetch("/updateprofile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          name: fullName,
+          email,
+          phone,
+          faceImage: faceDataUrl,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("✅ " + result.message);
+      } else {
+        alert("❌ Error: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error submitting profile:", error);
+      alert("Something went wrong while updating the profile.");
     }
+  });
+}
+
   })
   

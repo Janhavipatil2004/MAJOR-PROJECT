@@ -40,17 +40,12 @@
       <div class="sidebar-menu">
         <ul>
           <li class="active">
-            <a href="index.html">
+            <a href="{{ url_for('dashboard') }}">
               <i class="fas fa-home"></i>
               <span>Dashboard</span>
             </a>
           </li>
-          <li>
-            <a href="#">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
+
           <li class="sidebar-divider">
             <span>Account</span>
           </li>
@@ -131,11 +126,6 @@
             <h1>Welcome, {{ user }}!</h1>
             <p class="text-muted">Your facial authentication was successful. Here's your dashboard overview.</p>
           </div>
-          <div class="page-actions">
-            <button class="btn btn-primary btn-sm">
-              <i class="fas fa-sync-alt me-1"></i> Refresh
-            </button>
-          </div>
         </div>
 
         <!-- Stats Overview -->
@@ -204,17 +194,6 @@
                     <i class="fas fa-chevron-right action-arrow"></i>
                   </a>
 
-                  <a href="#" class="account-action-btn">
-                    <div class="action-icon"><i class="fas fa-lock"></i></div>
-                    <div class="action-text">
-                      <h6>Security Settings</h6>
-                      <p>Manage your security preferences</p>
-                    </div>
-                    <i class="fas fa-chevron-right action-arrow"></i>
-                  </a>
-
-
-
                   <a href="{{ url_for('logout') }}" class="account-action-btn">
                     <div class="action-icon logout-icon"><i class="fas fa-sign-out-alt"></i></div>
                     <div class="action-text">
@@ -232,7 +211,7 @@
 
       <footer class="footer">
         <div>
-          <p>&copy; 2023 SecureFace Authentication. All rights reserved.</p>
+          <p>&copy; 2025 SecureFace Authentication. All rights reserved.</p>
         </div>
         <div>
           <a href="#">Privacy Policy</a>

@@ -1,4 +1,6 @@
+import base64
 from collections.abc import Collection
+from io import BytesIO
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, session, send_from_directory
 import pymongo
 import bcrypt
@@ -33,6 +35,7 @@ MONGO_URI = "mongodb+srv://faciallogin22:VRkfgqnMg2cKicsv@facelogin.tnlk2if.mong
 client = MongoClient(MONGO_URI)
 db = client["facelogin_db"] 
 users_collection = db["users"]   
+
 
 # Flask-Mail Configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Change if using a different SMTP provider
@@ -297,7 +300,7 @@ def otpverification():
     if 'temp_user' in session:
         user = users_collection.find_one({"username": session['temp_user']})
         if user and 'email' in user:
-            session['otp_email'] = user['email']  # 👈 ADD THIS
+            session['otp_email'] = user['email']  
             return render_template('indexotp.html', username=user['username'])
     return redirect(url_for('signin'))
 
@@ -344,12 +347,80 @@ def dashboard():
     flash("Please log in to access the dashboard.", "error")
     return redirect(url_for('signin'))
 
+
 @app.route('/editprofile')
 def edit_profile():
     if 'user' not in session:
         return redirect(url_for('signin'))
-    return render_template('editprofile.html')
 
+    user_email = session['user']
+    user = users_collection.find_one({"email": user_email}, {
+        "_id": 0,  # Exclude MongoDB's internal ID field
+        "name": 1,
+        "username": 1,
+        "email": 1,
+        "phone": 1,
+        "dob": 1
+    })
+
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for('dashboard'))
+
+    return render_template('editprofile.html', user=user)
+
+
+@app.route('/updateprofile', methods=['POST'])
+def update_profile():
+    if 'user' not in session:
+        return jsonify({"message": "Unauthorized"}), 401
+
+    data = request.get_json()
+    user_email = session['user']
+
+    updated_fields = {
+        "username": data.get("username"),
+        "name": data.get("name"),
+        "email": data.get("email"),
+        "phone": data.get("phone")
+    }
+
+    # Handle facial embedding update if image is provided
+    face_image_data = data.get("faceImage")
+    if face_image_data:
+        try:
+            # Decode base64 image
+            header, encoded = face_image_data.split(",", 1)
+            decoded = base64.b64decode(encoded)
+            image = Image.open(BytesIO(decoded)).convert("RGB")
+            image_np = np.array(image)
+
+            # Anti-spoofing check
+            if not is_real_face(image_np):
+                return jsonify({"message": "Invalid or spoofed face image!"}), 400
+
+            # Facial embedding extraction
+            embedding, error_message = get_embeddings(image_np)
+            if error_message:
+                raise ValueError(error_message)
+
+            # Optional: Check if this face already belongs to someone else
+            # if face_already_registered(embedding):
+            #     return jsonify({"message": "Face already registered!"}), 400
+
+            # Encrypt the embedding before storing
+            encrypted_embedding = encrypt_embedding(embedding)
+
+            # Save to update fields
+            updated_fields['embedding'] = encrypted_embedding
+
+        except Exception as e:
+            print("🔥 Facial update error:", e)
+            return jsonify({"message": f"Facial data update failed: {str(e)}"}), 500
+
+    # Update database
+    users_collection.update_one({"email": user_email}, {"$set": updated_fields})
+    return jsonify({"message": "Profile updated successfully."})
 
 @app.route('/logout')
 def logout():
