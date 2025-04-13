@@ -123,19 +123,19 @@ document.addEventListener("DOMContentLoaded", () => {
 if (profileForm) {
   profileForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
+  
     // Get form values
     const username = document.getElementById("username").value;
     const fullName = document.getElementById("fullName").value;
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
-
+  
     // Get captured image if available
     const capturedImg = document.getElementById("capturedImage");
     const faceDataUrl = (capturedImg && capturedImg.src && !capturedImg.src.includes("placeholder"))
       ? capturedImg.src
       : null;
-
+  
     try {
       const response = await fetch("/updateprofile", {
         method: "POST",
@@ -150,11 +150,15 @@ if (profileForm) {
           faceImage: faceDataUrl,
         }),
       });
-
+  
       const result = await response.json();
-
+  
       if (response.ok) {
         alert("✅ " + result.message);
+        // 👇 Redirect to dashboard after successful update
+        window.location.href = "/dashboard";
+        // OR, if you want to use backend-provided redirect:
+        // if (result.redirect) window.location.href = result.redirect;
       } else {
         alert("❌ Error: " + result.message);
       }
@@ -163,7 +167,11 @@ if (profileForm) {
       alert("Something went wrong while updating the profile.");
     }
   });
+  
 }
+
+
+
 
   })
   

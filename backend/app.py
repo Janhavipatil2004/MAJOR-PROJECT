@@ -312,10 +312,7 @@ def verify_otp():
         user_otp = request.json.get('otp')
         email = request.json.get('email')
 
-        print("✅ Received Email:", email)
-        print("🧠 Session Email:", session.get('otp_email'))
-        print("🔑 Received OTP:", user_otp)
-        print("🔐 Session OTP:", session.get('otp'))
+
 
         # ✅ Check stored OTP and email in session
         if 'otp' in session and 'otp_email' in session:
@@ -341,9 +338,17 @@ def verify_otp():
 def dashboard():
     """Render the dashboard page after OTP verification."""
     if 'user' in session:
-        name = session.get('temp_name') or session.get('name') or 'User'
-        return render_template('login.html', user=name, now=datetime.now())
-    
+        user_email = session['user']
+
+        # Fetch full user info from DB
+        user = users_collection.find_one(
+            {"email": user_email},
+            {"_id": 0, "name": 1, "username": 1, "email": 1, "phone": 1, "dob": 1}
+        )
+
+        if user:
+            return render_template('login.html', user=user, now=datetime.now())
+
     flash("Please log in to access the dashboard.", "error")
     return redirect(url_for('signin'))
 
@@ -420,7 +425,7 @@ def update_profile():
 
     # Update database
     users_collection.update_one({"email": user_email}, {"$set": updated_fields})
-    return jsonify({"message": "Profile updated successfully."})
+    return jsonify({"message": "Profile updated successfully." , "redirect": "/dashboard"})
 
 @app.route('/logout')
 def logout():
