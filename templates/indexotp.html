@@ -12,7 +12,6 @@
 </head>
 <body data-session-email="{{ session.get('otp_email', '') }}">
 
-
   <!-- Hidden Email Input (for JS to fallback if needed) -->
   <input type="hidden" id="emailAddress" value="{{ session.get('otp_email', '') }}">
 
@@ -22,7 +21,9 @@
     <div class="icon-container">
       <i class="fas fa-key" style="font-size: 48px; color: #0d1c32; margin: 20px 0;"></i>
     </div>
-    <h4>Enter One Time Password (OTP)</h4>
+    
+    <!-- Heading changes based on context (profile update or sign-in) -->
+    <h4>{{ 'Enter One Time Password (OTP) for Profile Update' if isProfileUpdate else 'Enter One Time Password (OTP) for Sign-In' }}</h4>
     
     <p>One Time Password has been sent to <span class="verifyEmail"></span></p>
 
@@ -46,8 +47,9 @@
       </p>
     </div>
 
-    <button class="verifyButton">
-      Verify <i class="fas fa-check"></i>
+    <!-- OTP Button Text Changes Based on Context -->
+    <button class="verifyButton" onclick="verifyOTP()">
+      {{ 'Verify Profile Update OTP' if isProfileUpdate else 'Verify Sign-In OTP' }} <i class="fas fa-check"></i>
     </button>
   </div>
 
@@ -57,7 +59,7 @@
     <div class="icon-container">
       <i class="fas fa-check-circle" style="font-size: 48px; color: #28a745; margin: 20px 0;"></i>
     </div>
-    <p>Your email has been successfully verified!</p>
+    <p>Your {{ 'profile has been successfully updated!' if isProfileUpdate else 'email has been successfully verified!' }}</p>
   </div>
 </body>
 </html>
