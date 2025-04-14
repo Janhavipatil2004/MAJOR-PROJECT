@@ -387,7 +387,8 @@ def update_profile():
         "username": data.get("username"),
         "name": data.get("name"),
         "email": data.get("email"),
-        "phone": data.get("phone")
+        "phone": data.get("phone"),
+        "dob": data.get("dob") 
     }
 
     # Handle facial embedding update if image is provided

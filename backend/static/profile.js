@@ -1,4 +1,34 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+  // === Theme Toggle ===
+const themeToggle = document.getElementById("themeToggle");
+const body = document.body;
+
+const updateThemeIcon = (icon, isDark) => {
+  if (!icon) return;
+  icon.classList.toggle("fa-sun", !isDark);
+  icon.classList.toggle("fa-moon", isDark);
+};
+
+if (themeToggle) {
+  const icon = themeToggle.querySelector("i");
+  const savedTheme = localStorage.getItem("theme");
+
+  if (savedTheme) {
+    const isDark = savedTheme === "dark";
+    body.classList.toggle("dark-theme", isDark);
+    updateThemeIcon(icon, isDark);
+  }
+
+  themeToggle.addEventListener("click", () => {
+    const isDark = body.classList.toggle("dark-theme");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    updateThemeIcon(themeToggle.querySelector("i"), isDark);
+  });
+}
+
+
+
     // Profile avatar upload
     const avatarUpload = document.getElementById("avatarUpload")
     const profileAvatar = document.querySelector(".profile-avatar")
@@ -129,6 +159,8 @@ if (profileForm) {
     const fullName = document.getElementById("fullName").value;
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
+    const dob = document.getElementById("dob").value;
+
   
     // Get captured image if available
     const capturedImg = document.getElementById("capturedImage");
@@ -147,6 +179,7 @@ if (profileForm) {
           name: fullName,
           email,
           phone,
+          dob,
           faceImage: faceDataUrl,
         }),
       });
