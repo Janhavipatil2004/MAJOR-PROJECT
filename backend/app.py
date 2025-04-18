@@ -2,12 +2,14 @@ import base64
 from collections.abc import Collection
 from io import BytesIO
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, session, send_from_directory
+from flask_session import Session
 import pymongo
 import bcrypt
 import tensorflow as tf
 import numpy as np
 import cv2
 import torch
+import secrets
 from facenet_pytorch import InceptionResnetV1, MTCNN
 from scipy.spatial.distance import cosine
 from PIL import Image
@@ -22,7 +24,7 @@ from encryption_utils import encrypt_embedding, decrypt_embedding
 
 # Flask app setup
 app = Flask(__name__, template_folder='../templates', static_folder='static')
-app.secret_key = "your_secret_key"
+app.secret_key = secrets.token_hex(24)  # Generates a 48-character hex string (24 bytes)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB
 
 # MongoDB connection
@@ -36,6 +38,16 @@ client = MongoClient(MONGO_URI)
 db = client["facelogin_db"] 
 users_collection = db["users"]   
 
+# 🔐 Flask-Session Configuration
+app.config['SESSION_TYPE'] = 'mongodb'
+app.config['SESSION_MONGODB'] = client
+app.config['SESSION_MONGODB_DB'] = 'flask_sessions'
+app.config['SESSION_MONGODB_COLLECT'] = 'sessions'
+app.config['SESSION_PERMANENT'] = False  # Or True if you want long-lived sessions
+app.config['SESSION_USE_SIGNER'] = True  # Secure session ID with a signature
+app.config['SECRET_KEY'] = secrets.token_hex(24)  # Generates a 48-character hex string (24 bytes)
+
+Session(app)  # Initialize Flask-Session
 
 # Flask-Mail Configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Change if using a different SMTP provider
@@ -139,7 +151,7 @@ def register():
             return jsonify({"status": "error", "message": "Missing required fields!"}), 400
         
         nparr = np.frombuffer(image_data.read(), np.uint8)
-        face_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        face_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR) # Make raw bytes into an image array format NumPy can understand.
         
         if face_img is None or not is_real_face(face_img):
             return jsonify({"status": "error", "message": "Invalid or spoofed face image!"}), 400
