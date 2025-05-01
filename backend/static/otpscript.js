@@ -132,6 +132,15 @@ verifyButton.addEventListener("click", () => {
 
   const email = verifyEmail?.textContent?.trim();
 
+  Swal.fire({
+    title: "Verifying OTP...",
+    text: "Please wait while we verify your OTP.",
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+  
   fetch("/verify-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -139,17 +148,38 @@ verifyButton.addEventListener("click", () => {
   })
     .then((response) => response.json())
     .then((data) => {
+      Swal.close(); // Close the loading indicator
+  
       if (data.status === "success") {
-        alert(data.message);
-        window.location.href = data.redirect_url;
+        Swal.fire({
+          icon: "success",
+          title: "Verification Successful",
+          text: data.message,
+          confirmButtonText: "Continue",
+          confirmButtonColor: "#28a745",
+        }).then(() => {
+          window.location.href = data.redirect_url;
+        });
       } else {
-        alert(data.message);
+        Swal.fire({
+          icon: "error",
+          title: "Verification Failed",
+          text: data.message,
+          confirmButtonColor: "#d33",
+        });
       }
     })
     .catch((error) => {
       console.error("❌ Error during OTP verification:", error);
-      alert("An error occurred. Please try again.");
+      Swal.close();
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: "An error occurred during OTP verification. Please try again.",
+        confirmButtonColor: "#d33",
+      });
     });
+  
 });
 
 // Change email handler

@@ -241,9 +241,15 @@ document.addEventListener("DOMContentLoaded", () => {
   
       const imageBase64 = document.getElementById("signup-image").value
       if (!imageBase64) {
-        alert("Please capture an image before signing up.")
-        return
+        Swal.fire({
+          icon: "warning",
+          title: "Face Capture Required",
+          text: "Please capture your face image before proceeding with sign-up.",
+          confirmButtonColor: "#f39c12",
+        });
+        return;
       }
+      
   
       // Convert Base64 to Blob
       const blob = dataURItoBlob(imageBase64)
@@ -277,9 +283,15 @@ document.addEventListener("DOMContentLoaded", () => {
   
       const imageBase64 = document.getElementById("signin-image").value
       if (!imageBase64) {
-        alert("Please capture an image before signing in.")
-        return
+        Swal.fire({
+          icon: "warning",
+          title: "Face Capture Required",
+          text: "Please capture your face image before proceeding with sign-in.",
+          confirmButtonColor: "#f39c12",
+        });
+        return;
       }
+      
   
       // Convert Base64 to Blob
       const blob = dataURItoBlob(imageBase64)
@@ -292,16 +304,34 @@ document.addEventListener("DOMContentLoaded", () => {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === "otp_required") {
-            alert(data.message)
-            window.location.href = data.redirect_url // Redirect to OTP page
+            Swal.fire({
+              icon: "info",
+              title: "Authentication in Progress",
+              text: "You will now be redirected to complete OTP verification.",
+              confirmButtonText: "Proceed",
+              confirmButtonColor: "#3085d6",
+            }).then(() => {
+              window.location.href = data.redirect_url;
+            });
           } else {
-            alert(data.message)
+            Swal.fire({
+              icon: data.status === "success" ? "success" : "error",
+              title: data.status === "success" ? "Login Successful" : "Login Failed",
+              text: data.message,
+              confirmButtonColor: "#3085d6",
+            });
           }
         })
         .catch((error) => {
-          console.error("Error during sign-in:", error)
-          alert("An error occurred during sign-in. Please try again.")
-        })
+          console.error("Error during sign-in:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Unexpected Error",
+            text: "Something went wrong during sign-in. Please try again later.",
+            confirmButtonColor: "#d33",
+          });
+        });
+      
     })
   
     // Function to convert Base64 to Blob
