@@ -18,12 +18,12 @@ from datetime import datetime
 from flask_mail import Mail, Message 
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-from encryption_utils import encrypt_embedding, decrypt_embedding
-
+from encryption_utils import decrypt_embedding, encrypt_embedding, decrypt_embedding
+from flask_cors import CORS
 
 
 # Flask app setup
-app = Flask(__name__, template_folder='../templates', static_folder='static')
+app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = secrets.token_hex(24)  # Generates a 48-character hex string (24 bytes)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB
 
@@ -454,6 +454,7 @@ def force_logout():
     return jsonify({"status": "success", "message": "Session cleared"}), 200
 
 
+# if __name__ == '__main__':
+#     app.run(debug=True)
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(host='0.0.0.0', port=5000)

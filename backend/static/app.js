@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
     // Theme Toggle Functionality
     const themeToggle = document.getElementById("theme-toggle")
@@ -255,21 +254,42 @@ document.addEventListener("DOMContentLoaded", () => {
       const blob = dataURItoBlob(imageBase64)
       formData.append("face_image", blob, "face_image.jpg")
   
-      fetch("/register", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          alert(data.message)
-          if (data.status === "success") {
-            window.location.href = "/signin"
-          }
-        })
-        .catch((error) => {
-          console.error("Error during registration:", error)
-          alert("An error occurred during registration. Please try again.")
-        })
+fetch("/register", {
+  method: "POST",
+  body: formData,
+})
+  .then((response) => response.json())
+  .then((data) => {
+    if (data.status === "success") {
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: data.message,
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK",
+      }).then(() => {
+        window.location.href = "/signin";
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: data.message,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Try Again",
+      });
+    }
+  })
+  .catch((error) => {
+    console.error("Error during registration:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "An error occurred during registration. Please try again.",
+      footer: '<a href="/contact">Contact support</a>',
+    });
+  });
+
     })
   
     // Function to handle form submission for Sign-In with OTP verification

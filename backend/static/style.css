@@ -316,7 +316,7 @@ html[data-theme="light"] .strength-segment {
 }
 
 .strength-strong .strength-segment {
-  background-color: var(--success-color);
+  background-color: green;
 }
 
 /* Button Styles */
